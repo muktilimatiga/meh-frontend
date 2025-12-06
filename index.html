@@ -4,141 +4,21 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Nexus Dashboard</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        darkMode: 'class',
-        theme: {
-          extend: {
-            fontFamily: {
-              sans: ['Inter', 'sans-serif'],
-            },
-            colors: {
-              border: "hsl(var(--border))",
-              input: "hsl(var(--input))",
-              ring: "hsl(var(--ring))",
-              background: "hsl(var(--background))",
-              foreground: "hsl(var(--foreground))",
-              primary: {
-                DEFAULT: "hsl(var(--primary))",
-                foreground: "hsl(var(--primary-foreground))",
-              },
-              secondary: {
-                DEFAULT: "hsl(var(--secondary))",
-                foreground: "hsl(var(--secondary-foreground))",
-              },
-              destructive: {
-                DEFAULT: "hsl(var(--destructive))",
-                foreground: "hsl(var(--destructive-foreground))",
-              },
-              muted: {
-                DEFAULT: "hsl(var(--muted))",
-                foreground: "hsl(var(--muted-foreground))",
-              },
-              accent: {
-                DEFAULT: "hsl(var(--accent))",
-                foreground: "hsl(var(--accent-foreground))",
-              },
-              popover: {
-                DEFAULT: "hsl(var(--popover))",
-                foreground: "hsl(var(--popover-foreground))",
-              },
-              card: {
-                DEFAULT: "hsl(var(--card))",
-                foreground: "hsl(var(--card-foreground))",
-              },
-            },
-          },
-        },
-      }
-    </script>
-    <style>
-        /* CSS Variables for Shadcn-like theme (Zinc Palette) */
-        /* Using a neutral Zinc palette to avoid saturation and pure black */
-        :root {
-          --background: 0 0% 100%;
-          --foreground: 240 10% 3.9%;
-          
-          --card: 0 0% 100%;
-          --card-foreground: 240 10% 3.9%;
-          
-          --popover: 0 0% 100%;
-          --popover-foreground: 240 10% 3.9%;
-          
-          --primary: 240 5.9% 10%;
-          --primary-foreground: 0 0% 98%;
-          
-          --secondary: 240 4.8% 95.9%;
-          --secondary-foreground: 240 5.9% 10%;
-          
-          --muted: 240 4.8% 95.9%;
-          --muted-foreground: 240 3.8% 46.1%;
-          
-          --accent: 240 4.8% 95.9%;
-          --accent-foreground: 240 5.9% 10%;
-          
-          --destructive: 0 84.2% 60.2%;
-          --destructive-foreground: 0 0% 98%;
-          
-          --border: 240 5.9% 90%;
-          --input: 240 5.9% 90%;
-          --ring: 240 5.9% 10%;
-          
-          --radius: 0.5rem;
-          
-          /* Chart Colors for App Icons */
-          --chart-1: oklch(0.8959 0.1823 101.2154); /* Neon Yellow */
-          --chart-2: oklch(0.5671 0.1399 253.3047); /* Deep Purple */
-          --chart-3: oklch(0.7137 0.0192 261.3246); /* Muted Blue */
-          --chart-4: oklch(0.5510 0.0234 264.3637); /* Slate Blue */
-          --chart-5: oklch(0.4461 0.0263 256.8018); /* Deep Slate */
-        }
-
-        .dark {
-          /* Zinc 950 base - Avoids pure black (#000000) */
-          --background: 240 10% 3.9%;
-          --foreground: 0 0% 98%;
-          
-          /* Slightly elevated card background for depth */
-          --card: 240 10% 5%;
-          --card-foreground: 0 0% 98%;
-          
-          --popover: 240 10% 3.9%;
-          --popover-foreground: 0 0% 98%;
-          
-          --primary: 0 0% 98%;
-          --primary-foreground: 240 5.9% 10%;
-          
-          /* Desaturated secondary/muted for accessible contrast without color noise */
-          --secondary: 240 3.7% 15.9%;
-          --secondary-foreground: 0 0% 98%;
-          
-          --muted: 240 3.7% 15.9%;
-          --muted-foreground: 240 5% 64.9%;
-          
-          --accent: 240 3.7% 15.9%;
-          --accent-foreground: 0 0% 98%;
-          
-          --destructive: 0 62.8% 30.6%;
-          --destructive-foreground: 0 0% 98%;
-          
-          --border: 240 3.7% 15.9%;
-          --input: 240 3.7% 15.9%;
-          --ring: 240 4.9% 83.9%;
-          
-          /* Chart Colors for Dark Mode */
-           --chart-1: oklch(0.8959 0.1823 101.2154);
-           --chart-2: oklch(0.5671 0.1399 253.3047);
-           --chart-3: oklch(0.7137 0.0192 261.3246);
-           --chart-4: oklch(0.5510 0.0234 264.3637);
-           --chart-5: oklch(0.4461 0.0263 256.8018);
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-    </style>
+    <!-- Tailwind v4 configuration is now handled in index.css and vite.config.ts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Debug: Check if Tailwind CSS is loaded -->
+    <script>
+      console.log('Tailwind config in HTML:', tailwind.config);
+      // Check if Tailwind CSS is loaded by looking for CSS variables
+      document.addEventListener('DOMContentLoaded', () => {
+        const rootStyles = getComputedStyle(document.documentElement);
+        console.log('CSS Variables check:', {
+          background: rootStyles.getPropertyValue('--background'),
+          foreground: rootStyles.getPropertyValue('--foreground'),
+          primary: rootStyles.getPropertyValue('--primary')
+        });
+      });
+    </script>
   <script type="importmap">
 {
   "imports": {

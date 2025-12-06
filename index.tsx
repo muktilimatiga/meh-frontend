@@ -4,6 +4,8 @@ import App from './App';
 import { NotificationProvider } from './context/NotificationContext';
 import { Toaster } from './components/ui/Sonner';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+// Debug: Import CSS to ensure Tailwind styles are loaded
+import './index.css';
 
 const queryClient = new QueryClient();
 
