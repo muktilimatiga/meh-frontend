@@ -41,3 +41,38 @@ export const useLogActivity = () => {
     },
   });
 };
+
+// --- Ticket Logs Hooks ---
+export const useTicketLogs = (ticketId?: string) => {
+  return useQuery({
+    queryKey: ['ticket-logs', ticketId],
+    queryFn: async () => {
+      if (!ticketId) return [];
+      
+      // Fallback to mock logs
+      return [
+        {
+          id: 'log-1',
+          ticketId,
+          message: 'Ticket created',
+          createdAt: new Date().toISOString(),
+          userName: 'System'
+        },
+        {
+          id: 'log-2',
+          ticketId,
+          message: 'Ticket assigned to support team',
+          createdAt: new Date(Date.now() - 3600000).toISOString(),
+          userName: 'Admin'
+        }
+      ] as Array<{
+        id: string;
+        ticketId: string;
+        message: string;
+        createdAt: string;
+        userName: string;
+      }>;
+    },
+    enabled: !!ticketId,
+  });
+};

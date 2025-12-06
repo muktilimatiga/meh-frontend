@@ -17,10 +17,12 @@ import {
 import { Header } from '../components/Header';
 import { AppGrid } from '../components/AppGrid';
 import { AIResponseCard } from '../components/AIResponseCard';
+import { GlobalSearch } from '../components/GlobalSearch';
 import { Modal } from '../components/ui/Modal';
 import { Button } from '../components/ui/Button';
 import { AppIcon } from '../types';
 import { MOCK_USER } from '../constants';
+import { useAppStore } from '../store';
 
 // Apps list matching requirements
 const INITIAL_APPS: AppIcon[] = [
@@ -78,6 +80,22 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
     const [isAddModalOpen, setIsAddModalOpen] = React.useState(false);
     const [isTopologyModalOpen, setIsTopologyModalOpen] = React.useState(false);
     const [launchingAppId, setLaunchingAppId] = React.useState<string | null>(null);
+    
+    // Use the app store for global search
+    const { toggleSearch } = useAppStore();
+    
+    // Add keyboard shortcut for global search
+    React.useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                e.preventDefault();
+                toggleSearch();
+            }
+        };
+        
+        document.addEventListener('keydown', handleKeyDown);
+        return () => document.removeEventListener('keydown', handleKeyDown);
+    }, [toggleSearch]);
 
     // Filter apps based on search query
     const filteredApps = React.useMemo(() => {
@@ -234,6 +252,9 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
                     </button>
                 </div>
             </Modal>
+            
+            {/* Global Search Component */}
+            <GlobalSearch onNavigate={onNavigate} />
         </div>
     );
 };

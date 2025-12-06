@@ -4,39 +4,16 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Nexus Dashboard</title>
-    <!-- Tailwind v4 configuration is now handled in index.css and vite.config.ts -->
+    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Debug: Check if Tailwind CSS is loaded -->
-    <script>
-      console.log('Tailwind config in HTML:', tailwind.config);
-      // Check if Tailwind CSS is loaded by looking for CSS variables
-      document.addEventListener('DOMContentLoaded', () => {
-        const rootStyles = getComputedStyle(document.documentElement);
-        console.log('CSS Variables check:', {
-          background: rootStyles.getPropertyValue('--background'),
-          foreground: rootStyles.getPropertyValue('--foreground'),
-          primary: rootStyles.getPropertyValue('--primary')
-        });
-      });
-    </script>
-  <script type="importmap">
-{
-  "imports": {
-    "react/": "https://aistudiocdn.com/react@^19.2.1/",
-    "react": "https://aistudiocdn.com/react@^19.2.1",
-    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.555.0",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.1/",
-    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.31.0",
-    "@tanstack/react-table": "https://aistudiocdn.com/@tanstack/react-table@8.20.5",
-    "@supabase/supabase-js": "https://aistudiocdn.com/@supabase/supabase-js@^2.45.0",
-    "sonner": "https://aistudiocdn.com/sonner@1.5.0",
-    "@tanstack/react-query": "https://aistudiocdn.com/@tanstack/react-query@^5.90.12"
-  }
-}
-</script>
-</head>
-  <body class="bg-background text-foreground transition-colors duration-300">
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <link rel="stylesheet" href="https://esm.sh/@xyflow/react@12.0.0/dist/style.css" />
+  </head>
+  <body>
     <div id="root"></div>
+    
     <script type="module" src="/index.tsx"></script>
   </body>
 </html>
