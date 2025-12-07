@@ -3,13 +3,13 @@ import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { X, Copy, Send, DollarSign } from 'lucide-react';
 import { ModalOverlay, Label, Input, Textarea, Button, Separator } from '@/components/ui'
-import { User } from '@/types'
+import { Customer } from '@/types'
 import { useLogActivity } from '@/hooks/useQueries';
 
 interface InvoicePaymentModalProps {
   isOpen: boolean;
   onClose: () => void;
-  user: User | null;
+  user: Customer | null;
 }
 
 export const InvoicePaymentModal = ({ isOpen, onClose, user }: InvoicePaymentModalProps) => {
@@ -37,11 +37,11 @@ export const InvoicePaymentModal = ({ isOpen, onClose, user }: InvoicePaymentMod
       minimumFractionDigits: 0
     }).format(Number(amount.replace(/[^0-9]/g, '')));
 
-    const msg = `Pelanggan Yth, *${user.name.toUpperCase()}*
+    const msg = `Pelanggan Yth, *${user.nameaddres.toUpperCase()}*
 Berikut detail tagihan internet bulan ${monthName} ${year},
 
 No Internet : ${internetId}
-Nama: ${user.name.toUpperCase()}
+Nama: ${user.nameaddres.toUpperCase()}
 Tagihan : ${formattedAmount}
 Link Payment : ${paymentLink}
 
@@ -62,7 +62,7 @@ Silahkan melakukan pembayaran sebelum tanggal ${deadlineDate}. Agar internet And
     logActivity.mutate({
         level: 'info',
         source: 'Invoice',
-        message: `Invoice sent to ${user?.name}`,
+        message: `Invoice sent to ${user?.nameaddres  }`,
         user: 'Admin', // Assuming current user is admin
         metadata: { amount, phone, internetId }
     });

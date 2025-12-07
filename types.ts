@@ -9,22 +9,32 @@ export interface AppIcon {
 }
 
 export interface UserProfile {
-    name: string;
-    email: string;
-    avatarUrl: string;
+    id: number;
+    username: string;
+    full_name: string;
+    role: string;
 }
 
-export interface User {
-    id: string;
+export interface Customer {
+    olt_name: string;
+    interface: string;
+    nameaddres: string;
+    sn: string;
+    modemt_type: string;
+    status: string;
+    last_uptime: string;
+    rx_power_dbm: string;
+    rx_power_str: string;
+    raw_onuid: string;
+    last_updated: Date;
+}
+
+export interface CustomerPSB {
     name: string;
-    email: string;
-    role: string;
-    address?: string;
-    olt?: string;
-    port?: string;
-    sn?: string;
-    packet?: string;
-    [key: string]: any;
+    alamat: string;
+    user_pppoe: string;
+    password_pppoe: string;
+    paket: string;
 }
 
 export interface SearchResult {
@@ -116,4 +126,18 @@ export interface SystemLog {
     message: string;
     timestamp: number;
     source?: string;
+}
+
+export interface LogMetro {
+    id: string;
+    service_name: string;
+    month_sheet: string;
+    no_ref: number;
+    description: string;
+    start_time: string;
+    finish_time: string;
+    downtime_duration: number;
+    downtime_minutes: number;
+    problem_detail: string;
+    action_taken: string;
 }
