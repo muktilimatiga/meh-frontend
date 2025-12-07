@@ -2,21 +2,21 @@ import * as React from 'react';
 import { ArrowLeft, Square, Circle, MousePointer2, Trash2, Download } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { WhiteboardShape, WhiteboardTool } from '../types';
-import { Header } from '../components/Header';
 import { MOCK_USER } from '../constants';
 import { AIResponseCard } from '../components/AIResponseCard';
+import { useNavigate } from '@tanstack/react-router';
+import { useAppStore } from '../store';
 
-interface ExcalidrawPageProps {
-    onBack: () => void;
-}
+export const ExcalidrawPage: React.FC = () => {
+    const navigate = useNavigate();
+    const onBack = () => navigate({ to: '/' });
+    const { setAiResponse, aiResponse } = useAppStore();
 
-export const ExcalidrawPage: React.FC<ExcalidrawPageProps> = ({ onBack }) => {
     const [shapes, setShapes] = React.useState<WhiteboardShape[]>([]);
     const [selectedTool, setSelectedTool] = React.useState<WhiteboardTool>('select');
     const [selectedId, setSelectedId] = React.useState<string | null>(null);
     const [isDrawing, setIsDrawing] = React.useState(false);
-    const [aiResponse, setAiResponse] = React.useState<string | null>(null);
-    
+
     const startPos = React.useRef({ x: 0, y: 0 });
     const currentShapeId = React.useRef<string | null>(null);
 
@@ -93,15 +93,9 @@ export const ExcalidrawPage: React.FC<ExcalidrawPageProps> = ({ onBack }) => {
     };
 
     return (
-        <div className="flex flex-col h-screen bg-slate-50 font-sans">
-             <Header 
-                user={MOCK_USER} 
-                onSearch={() => {}} 
-                onAIResult={setAiResponse} 
-            />
-            
+        <div className="flex flex-col h-full bg-slate-50 font-sans">
             <div className="flex-1 relative overflow-hidden flex flex-col">
-                 {aiResponse && (
+                {aiResponse && (
                     <div className="absolute top-0 left-0 right-0 z-50 p-4 bg-background/90 backdrop-blur-sm border-b border-border">
                         <AIResponseCard response={aiResponse} onClose={() => setAiResponse(null)} />
                     </div>
@@ -109,26 +103,26 @@ export const ExcalidrawPage: React.FC<ExcalidrawPageProps> = ({ onBack }) => {
 
                 {/* Toolbar */}
                 <div className="absolute top-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1 p-1.5 bg-white rounded-xl shadow-lg border border-slate-100/60 ring-1 ring-slate-900/5">
-                    <Button 
-                        variant={selectedTool === 'select' ? 'secondary' : 'ghost'} 
-                        size="icon" 
+                    <Button
+                        variant={selectedTool === 'select' ? 'secondary' : 'ghost'}
+                        size="icon"
                         onClick={() => setSelectedTool('select')}
                         className={selectedTool === 'select' ? 'bg-violet-100 text-violet-700' : 'text-slate-600'}
                     >
                         <MousePointer2 size={18} />
                     </Button>
                     <div className="w-[1px] h-6 bg-slate-200 mx-1"></div>
-                    <Button 
-                        variant={selectedTool === 'rectangle' ? 'secondary' : 'ghost'} 
-                        size="icon" 
+                    <Button
+                        variant={selectedTool === 'rectangle' ? 'secondary' : 'ghost'}
+                        size="icon"
                         onClick={() => setSelectedTool('rectangle')}
                         className={selectedTool === 'rectangle' ? 'bg-violet-100 text-violet-700' : 'text-slate-600'}
                     >
                         <Square size={18} />
                     </Button>
-                    <Button 
-                        variant={selectedTool === 'circle' ? 'secondary' : 'ghost'} 
-                        size="icon" 
+                    <Button
+                        variant={selectedTool === 'circle' ? 'secondary' : 'ghost'}
+                        size="icon"
                         onClick={() => setSelectedTool('circle')}
                         className={selectedTool === 'circle' ? 'bg-violet-100 text-violet-700' : 'text-slate-600'}
                     >
@@ -161,17 +155,17 @@ export const ExcalidrawPage: React.FC<ExcalidrawPageProps> = ({ onBack }) => {
                 </div>
 
                 {/* Canvas */}
-                <div 
+                <div
                     className="absolute inset-0 z-0 cursor-crosshair overflow-hidden"
                     onMouseDown={handleMouseDown}
                     onMouseMove={handleMouseMove}
                     onMouseUp={handleMouseUp}
                 >
-                    <div 
-                        className="w-full h-full opacity-40 pointer-events-none" 
-                        style={{ 
-                            backgroundImage: 'radial-gradient(#94a3b8 1.5px, transparent 1.5px)', 
-                            backgroundSize: '24px 24px' 
+                    <div
+                        className="w-full h-full opacity-40 pointer-events-none"
+                        style={{
+                            backgroundImage: 'radial-gradient(#94a3b8 1.5px, transparent 1.5px)',
+                            backgroundSize: '24px 24px'
                         }}
                     ></div>
 
@@ -190,8 +184,8 @@ export const ExcalidrawPage: React.FC<ExcalidrawPageProps> = ({ onBack }) => {
                         };
 
                         return (
-                            <div 
-                                key={shape.id} 
+                            <div
+                                key={shape.id}
                                 style={style}
                                 onClick={(e) => { e.stopPropagation(); setSelectedId(shape.id); }}
                                 className="hover:ring-2 ring-violet-300 transition-shadow"
@@ -199,7 +193,7 @@ export const ExcalidrawPage: React.FC<ExcalidrawPageProps> = ({ onBack }) => {
                         );
                     })}
                 </div>
-                
+
                 <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-xs text-slate-400 font-medium pointer-events-none">
                     {selectedTool === 'select' ? 'Click shapes to select. Press Delete to remove.' : 'Click and drag to draw.'}
                 </div>

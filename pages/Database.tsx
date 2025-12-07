@@ -4,24 +4,24 @@ import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { useSupabaseTableData } from '../hooks/useSupabaseTableData';
 import { EnhancedTable, ColumnDef } from '../components/ui/EnhancedTable';
-import { Header } from '../components/Header';
 import { AIResponseCard } from '../components/AIResponseCard';
 import { MOCK_USER } from '../constants';
+import { useNavigate } from '@tanstack/react-router';
+import { useAppStore } from '../store';
 
-interface DatabasePageProps {
-    onBack: () => void;
-}
+export const DatabasePage: React.FC = () => {
+    const navigate = useNavigate();
+    const onBack = () => navigate({ to: '/' });
+    const { setAiResponse, aiResponse } = useAppStore();
 
-export const DatabasePage: React.FC<DatabasePageProps> = ({ onBack }) => {
     const [tableName, setTableName] = React.useState('log_komplain');
     const { data, loading, refetch } = useSupabaseTableData(tableName);
     const [searchTerm, setSearchTerm] = React.useState('');
-    const [aiResponse, setAiResponse] = React.useState<string | null>(null);
 
     // Dynamically generate columns based on first row of data
     const columns = React.useMemo<ColumnDef<any>[]>(() => {
         if (!data || data.length === 0) return [];
-        
+
         const firstRow = data[0];
         // Take first 6 keys for display
         return Object.keys(firstRow).slice(0, 6).map(key => ({
@@ -36,13 +36,7 @@ export const DatabasePage: React.FC<DatabasePageProps> = ({ onBack }) => {
     }, [data]);
 
     return (
-        <div className="flex flex-col h-screen bg-background font-sans text-foreground">
-            <Header 
-                user={MOCK_USER} 
-                onSearch={() => {}} 
-                onAIResult={setAiResponse} 
-            />
-
+        <div className="flex flex-col h-full bg-background font-sans text-foreground">
             <div className="flex-1 flex flex-col overflow-hidden">
                 {aiResponse && (
                     <div className="p-4 border-b border-border bg-muted/20">
@@ -64,7 +58,7 @@ export const DatabasePage: React.FC<DatabasePageProps> = ({ onBack }) => {
                         </div>
                     </div>
                     <div className="flex items-center gap-3">
-                        <select 
+                        <select
                             className="h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                             value={tableName}
                             onChange={(e) => setTableName(e.target.value)}
@@ -84,8 +78,8 @@ export const DatabasePage: React.FC<DatabasePageProps> = ({ onBack }) => {
                         </Button>
                         <div className="relative w-64">
                             <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                            <Input 
-                                placeholder="Filter local results..." 
+                            <Input
+                                placeholder="Filter local results..."
                                 className="pl-9"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -97,9 +91,9 @@ export const DatabasePage: React.FC<DatabasePageProps> = ({ onBack }) => {
                         {loading ? (
                             <div className="p-12 flex justify-center text-muted-foreground">Loading data...</div>
                         ) : (
-                            <EnhancedTable 
+                            <EnhancedTable
                                 data={data.filter(item => JSON.stringify(item).toLowerCase().includes(searchTerm.toLowerCase()))}
-                                columns={columns} 
+                                columns={columns}
                             />
                         )}
                     </div>

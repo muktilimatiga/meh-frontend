@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { 
+import {
     Plus,
-    Wifi, 
-    Database, 
-    FileText, 
+    Wifi,
+    Database,
+    FileText,
     LayoutTemplate,
     FileCog,
     Layers,
@@ -12,9 +12,11 @@ import {
     PenTool,
     Workflow,
     CircleDashed,
-    MoveRight
+    MoveRight,
+    Settings as SettingsIcon
 } from 'lucide-react';
-import { Header } from '../components/Header';
+import { useNavigate } from '@tanstack/react-router';
+// Header is now in MainLayout
 import { AppGrid } from '../components/AppGrid';
 import { AIResponseCard } from '../components/AIResponseCard';
 import { GlobalSearch } from '../components/GlobalSearch';
@@ -23,67 +25,69 @@ import { Button } from '../components/ui/Button';
 import { AppIcon } from '../types';
 import { MOCK_USER } from '../constants';
 import { useAppStore } from '../store';
+import { CreateTicketModal, ConfigModal } from './components/modal';
 
 // Apps list matching requirements
 const INITIAL_APPS: AppIcon[] = [
-    { 
-        id: 'add', 
-        name: 'Add New', 
-        icon: Plus, 
-        color: 'var(--primary)', 
-        description: 'Install app' 
+    {
+        id: 'add',
+        name: 'Add New',
+        icon: Plus,
+        color: 'var(--primary)',
+        description: 'Install app'
     },
-    { 
-        id: 'broadband', 
-        name: 'Broadband', 
-        icon: Wifi, 
-        color: 'var(--chart-1)', 
-        description: 'Network status' 
+    {
+        id: '/broadband',
+        name: 'Broadband',
+        icon: Wifi,
+        color: 'var(--chart-1)',
+        description: 'Network status'
     },
-    { 
-        id: 'database', 
-        name: 'Database', 
-        icon: Database, 
-        color: 'var(--chart-2)', 
-        description: 'Data management' 
+    {
+        id: '/database',
+        name: 'Database',
+        icon: Database,
+        color: 'var(--chart-2)',
+        description: 'Data management'
     },
-    { 
-        id: 'logs', 
-        name: 'Logs', 
-        icon: FileText, 
-        color: 'var(--chart-3)', 
-        description: 'System logs' 
+    {
+        id: '/logs',
+        name: 'Logs',
+        icon: FileText,
+        color: 'var(--chart-3)',
+        description: 'System logs'
     },
-    { 
-        id: 'template', 
-        name: 'Template', 
-        icon: LayoutTemplate, 
-        color: 'var(--chart-4)', 
-        description: 'Layouts' 
+    {
+        id: '/template',
+        name: 'Template',
+        icon: LayoutTemplate,
+        color: 'var(--chart-4)',
+        description: 'Layouts'
     },
-    { 
-        id: 'empty', 
-        name: 'Empty Slot', 
-        icon: CircleDashed, 
-        color: 'var(--muted-foreground)', 
-        description: 'Available space' 
+    {
+        id: 'empty',
+        name: 'Empty Slot',
+        icon: CircleDashed,
+        color: 'var(--muted-foreground)',
+        description: 'Available space'
     },
 ];
 
-interface DashboardPageProps {
-    onNavigate: (view: 'excalidraw' | 'reactflow' | 'broadband' | 'database' | 'logs' | 'template') => void;
-}
+export const DashboardPage: React.FC = () => {
+    // Global state from store
+    const { globalSearchQuery, aiResponse, setAiResponse, toggleSearch } = useAppStore();
 
-export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
-    const [searchQuery, setSearchQuery] = React.useState('');
-    const [aiResponse, setAiResponse] = React.useState<string | null>(null);
+    // Local UI state
     const [isAddModalOpen, setIsAddModalOpen] = React.useState(false);
     const [isTopologyModalOpen, setIsTopologyModalOpen] = React.useState(false);
     const [launchingAppId, setLaunchingAppId] = React.useState<string | null>(null);
-    
-    // Use the app store for global search
-    const { toggleSearch } = useAppStore();
-    
+
+    // Business Modals State
+    const [isTicketModalOpen, setIsTicketModalOpen] = React.useState(false);
+    const [configModalType, setConfigModalType] = React.useState<'basic' | 'bridge' | null>(null);
+
+    const navigate = useNavigate();
+
     // Add keyboard shortcut for global search
     React.useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -92,20 +96,20 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
                 toggleSearch();
             }
         };
-        
+
         document.addEventListener('keydown', handleKeyDown);
         return () => document.removeEventListener('keydown', handleKeyDown);
     }, [toggleSearch]);
 
-    // Filter apps based on search query
+    // Filter apps based on global search query
     const filteredApps = React.useMemo(() => {
-        if (!searchQuery) return INITIAL_APPS;
-        const lowerQuery = searchQuery.toLowerCase();
-        return INITIAL_APPS.filter(app => 
-            app.name.toLowerCase().includes(lowerQuery) || 
+        if (!globalSearchQuery) return INITIAL_APPS;
+        const lowerQuery = globalSearchQuery.toLowerCase();
+        return INITIAL_APPS.filter(app =>
+            app.name.toLowerCase().includes(lowerQuery) ||
             app.description.toLowerCase().includes(lowerQuery)
         );
-    }, [searchQuery]);
+    }, [globalSearchQuery]);
 
     const handleAppClick = (appId: string) => {
         if (appId === 'add') {
@@ -115,62 +119,53 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
         } else {
             // Start launching effect
             setLaunchingAppId(appId);
-            
+
             // Simulate loading delay then navigate
             setTimeout(() => {
                 setLaunchingAppId(null);
-                // Type casting strictly for this demo logic
-                onNavigate(appId as any);
+                navigate({ to: appId });
             }, 800);
         }
     };
 
     const handleTopologySelect = (type: 'excalidraw' | 'reactflow') => {
         setIsTopologyModalOpen(false);
-        onNavigate(type);
+        navigate({ to: type === 'excalidraw' ? '/excalidraw' : '/reactflow' });
     };
 
     return (
-        <div className="min-h-screen bg-background font-sans text-foreground">
-            <Header 
-                user={MOCK_USER} 
-                onSearch={setSearchQuery}
-                onAIResult={setAiResponse}
-            />
+        <main className="container mx-auto px-4 py-8 max-w-7xl">
+            {/* Intro / Welcome Section */}
+            <div className="mb-8 pl-1">
+                <h1 className="text-3xl font-bold tracking-tight text-foreground">
+                    Good Morning, {MOCK_USER.name.split(' ')[0]}
+                </h1>
+            </div>
 
-            <main className="container mx-auto px-4 py-8 max-w-7xl">
-                {/* Intro / Welcome Section */}
-                <div className="mb-8 pl-1">
-                    <h1 className="text-3xl font-bold tracking-tight text-foreground">
-                        Good Morning, {MOCK_USER.name.split(' ')[0]}
-                    </h1>
+            {/* AI Response Area */}
+            {aiResponse && (
+                <AIResponseCard
+                    response={aiResponse}
+                    onClose={() => setAiResponse(null)}
+                />
+            )}
+
+            {/* App Grid Container */}
+            <div className="bg-card rounded-2xl border shadow-sm p-6 md:p-8 min-h-[500px]">
+                {/* Inner content area */}
+                <div className="flex items-center justify-between mb-8">
+                    <h2 className="text-lg font-semibold text-foreground">Installed Applications</h2>
+                    <span className="text-xs font-medium px-2.5 py-1 bg-muted rounded-full text-muted-foreground border border-border/50">
+                        {filteredApps.length} Apps
+                    </span>
                 </div>
 
-                {/* AI Response Area */}
-                {aiResponse && (
-                    <AIResponseCard 
-                        response={aiResponse} 
-                        onClose={() => setAiResponse(null)} 
-                    />
-                )}
-
-                {/* App Grid Container */}
-                <div className="bg-card rounded-2xl border shadow-sm p-6 md:p-8 min-h-[500px]">
-                     {/* Inner content area */}
-                    <div className="flex items-center justify-between mb-8">
-                        <h2 className="text-lg font-semibold text-foreground">Installed Applications</h2>
-                        <span className="text-xs font-medium px-2.5 py-1 bg-muted rounded-full text-muted-foreground border border-border/50">
-                            {filteredApps.length} Apps
-                        </span>
-                    </div>
-                    
-                    <AppGrid 
-                        apps={filteredApps} 
-                        onAppClick={handleAppClick} 
-                        launchingAppId={launchingAppId}
-                    />
-                </div>
-            </main>
+                <AppGrid
+                    apps={filteredApps}
+                    onAppClick={handleAppClick}
+                    launchingAppId={launchingAppId}
+                />
+            </div>
 
             {/* Add New Item Modal */}
             <Modal
@@ -179,7 +174,14 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
                 title="Add New Item"
             >
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <Button variant="outline" className="h-24 flex flex-col gap-2 hover:bg-primary/5 hover:border-primary/50 transition-all group">
+                    <Button
+                        variant="outline"
+                        className="h-24 flex flex-col gap-2 hover:bg-primary/5 hover:border-primary/50 transition-all group"
+                        onClick={() => {
+                            setIsAddModalOpen(false);
+                            setConfigModalType('basic');
+                        }}
+                    >
                         <FileCog className="h-6 w-6 text-blue-500 group-hover:scale-110 transition-transform" />
                         <span className="font-medium">New Config</span>
                     </Button>
@@ -187,16 +189,32 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
                         <Layers className="h-6 w-6 text-purple-500 group-hover:scale-110 transition-transform" />
                         <span className="font-medium">New Config Batch</span>
                     </Button>
-                    <Button variant="outline" className="h-24 flex flex-col gap-2 hover:bg-primary/5 hover:border-primary/50 transition-all group">
+                    <Button
+                        variant="outline"
+                        className="h-24 flex flex-col gap-2 hover:bg-primary/5 hover:border-primary/50 transition-all group"
+                        onClick={() => {
+                            setIsAddModalOpen(false);
+                            setIsTicketModalOpen(true);
+                        }}
+                    >
                         <Ticket className="h-6 w-6 text-green-500 group-hover:scale-110 transition-transform" />
                         <span className="font-medium">New Ticket</span>
                     </Button>
-                    <Button variant="outline" className="h-24 flex flex-col gap-2 hover:bg-primary/5 hover:border-primary/50 transition-all group">
+                    <Button
+                        variant="outline"
+                        className="h-24 flex flex-col gap-2 hover:bg-primary/5 hover:border-primary/50 transition-all group"
+                        onClick={() => {
+                            setIsAddModalOpen(false);
+                            setConfigModalType('bridge');
+                        }}
+                    >
                         <Network className="h-6 w-6 text-orange-500 group-hover:scale-110 transition-transform" />
                         <span className="font-medium">Config Bridge</span>
                     </Button>
                 </div>
             </Modal>
+
+
 
             {/* Topology Selection Modal */}
             <Modal
@@ -208,8 +226,8 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
                     <p className="text-sm text-muted-foreground mb-2">
                         Choose the environment that best fits your current task.
                     </p>
-                    
-                    <button 
+
+                    <button
                         className="relative w-full flex items-start gap-4 p-5 rounded-2xl border border-border bg-card hover:bg-accent/50 hover:border-violet-300 dark:hover:border-violet-700 transition-all cursor-pointer group text-left"
                         onClick={() => handleTopologySelect('excalidraw')}
                     >
@@ -230,7 +248,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
                         <MoveRight className="absolute right-5 top-1/2 -translate-y-1/2 text-muted-foreground opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" size={20} />
                     </button>
 
-                    <button 
+                    <button
                         className="relative w-full flex items-start gap-4 p-5 rounded-2xl border border-border bg-card hover:bg-accent/50 hover:border-pink-300 dark:hover:border-pink-700 transition-all cursor-pointer group text-left"
                         onClick={() => handleTopologySelect('reactflow')}
                     >
@@ -252,9 +270,21 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ onNavigate }) => {
                     </button>
                 </div>
             </Modal>
-            
+
             {/* Global Search Component */}
-            <GlobalSearch onNavigate={onNavigate} />
-        </div>
+            <GlobalSearch />
+
+            {/* Business Modals */}
+            <CreateTicketModal
+                isOpen={isTicketModalOpen}
+                onClose={() => setIsTicketModalOpen(false)}
+            />
+
+            <ConfigModal
+                isOpen={!!configModalType}
+                onClose={() => setConfigModalType(null)}
+                type={configModalType || 'basic'}
+            />
+        </main>
     );
 };

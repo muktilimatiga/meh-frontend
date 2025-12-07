@@ -1,15 +1,15 @@
 import * as React from 'react';
-import { 
-    ArrowLeft, 
-    Plus, 
-    Minus, 
-    Zap, 
-    MousePointer2, 
-    Database, 
-    Cloud, 
-    GitFork, 
-    FileInput, 
-    FileOutput, 
+import {
+    ArrowLeft,
+    Plus,
+    Minus,
+    Zap,
+    MousePointer2,
+    Database,
+    Cloud,
+    GitFork,
+    FileInput,
+    FileOutput,
     Cpu,
     Trash2,
     Settings2,
@@ -17,15 +17,17 @@ import {
 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Node, Edge, NodeType } from '../types';
-import { Header } from '../components/Header';
 import { MOCK_USER } from '../constants';
 import { AIResponseCard } from '../components/AIResponseCard';
+import { useNavigate } from '@tanstack/react-router';
+import { useAppStore } from '../store';
 
-interface ReactFlowPageProps {
-    onBack: () => void;
-}
+export const ReactFlowPage: React.FC = () => {
+    const navigate = useNavigate();
+    const onBack = () => navigate({ to: '/' });
 
-export const ReactFlowPage: React.FC<ReactFlowPageProps> = ({ onBack }) => {
+    const { setAiResponse, aiResponse } = useAppStore();
+
     // Initial State with a Demo Graph
     const [nodes, setNodes] = React.useState<Node[]>([
         { id: 'node-1', type: 'input', position: { x: 100, y: 150 }, label: 'User Request', data: { method: 'HTTP' } },
@@ -33,7 +35,7 @@ export const ReactFlowPage: React.FC<ReactFlowPageProps> = ({ onBack }) => {
         { id: 'node-3', type: 'decision', position: { x: 400, y: 300 }, label: 'Is Admin?', data: { condition: 'Role == Admin' } },
         { id: 'node-4', type: 'output', position: { x: 700, y: 150 }, label: 'Dashboard', data: { format: 'JSON' } }
     ]);
-    
+
     const [edges, setEdges] = React.useState<Edge[]>([
         { id: 'e-1-2', source: 'node-1', target: 'node-2' },
         { id: 'e-2-3', source: 'node-2', target: 'node-3' },
@@ -44,8 +46,7 @@ export const ReactFlowPage: React.FC<ReactFlowPageProps> = ({ onBack }) => {
     const [selectedId, setSelectedId] = React.useState<string | null>(null);
     const [connectingNodeId, setConnectingNodeId] = React.useState<string | null>(null);
     const [editingNodeId, setEditingNodeId] = React.useState<string | null>(null);
-    const [aiResponse, setAiResponse] = React.useState<string | null>(null);
-    
+
     // Dragging state
     const [isDraggingNode, setIsDraggingNode] = React.useState<string | null>(null);
     const dragOffset = React.useRef({ x: 0, y: 0 });
@@ -103,11 +104,11 @@ export const ReactFlowPage: React.FC<ReactFlowPageProps> = ({ onBack }) => {
 
         const node = nodes.find(n => n.id === id);
         if (node && canvasRef.current) {
-             const rect = canvasRef.current.getBoundingClientRect();
-             dragOffset.current = {
-                 x: (e.clientX - rect.left) / zoom - node.position.x,
-                 y: (e.clientY - rect.top) / zoom - node.position.y
-             };
+            const rect = canvasRef.current.getBoundingClientRect();
+            dragOffset.current = {
+                x: (e.clientX - rect.left) / zoom - node.position.x,
+                y: (e.clientY - rect.top) / zoom - node.position.y
+            };
         }
     };
 
@@ -190,11 +191,11 @@ export const ReactFlowPage: React.FC<ReactFlowPageProps> = ({ onBack }) => {
 
     const renderNodeCustomContent = (node: Node) => {
         const commonSelectClass = "block w-full mt-2 text-[10px] p-1 rounded border border-slate-200 bg-white text-slate-700 focus:outline-none focus:border-pink-500";
-        
+
         switch (node.type) {
             case 'api':
                 return (
-                    <select 
+                    <select
                         className={commonSelectClass}
                         value={node.data?.method || 'GET'}
                         onChange={(e) => updateNodeData(node.id, 'method', e.target.value)}
@@ -208,7 +209,7 @@ export const ReactFlowPage: React.FC<ReactFlowPageProps> = ({ onBack }) => {
                 );
             case 'database':
                 return (
-                    <select 
+                    <select
                         className={commonSelectClass}
                         value={node.data?.dbType || 'Postgres'}
                         onChange={(e) => updateNodeData(node.id, 'dbType', e.target.value)}
@@ -222,7 +223,7 @@ export const ReactFlowPage: React.FC<ReactFlowPageProps> = ({ onBack }) => {
                 );
             case 'decision':
                 return (
-                    <select 
+                    <select
                         className={commonSelectClass}
                         value={node.data?.condition || 'True'}
                         onChange={(e) => updateNodeData(node.id, 'condition', e.target.value)}
@@ -240,13 +241,8 @@ export const ReactFlowPage: React.FC<ReactFlowPageProps> = ({ onBack }) => {
     };
 
     return (
-        <div className="flex flex-col h-screen bg-slate-50 font-sans text-slate-900">
-             <Header 
-                user={MOCK_USER} 
-                onSearch={() => {}} 
-                onAIResult={setAiResponse} 
-            />
-            
+        <div className="flex flex-col h-full bg-slate-50 font-sans text-slate-900">
+
             <div className="flex-1 flex overflow-hidden relative">
                 {aiResponse && (
                     <div className="absolute top-0 left-0 right-0 z-50 p-4 bg-background/90 backdrop-blur-sm border-b border-border">
@@ -263,31 +259,31 @@ export const ReactFlowPage: React.FC<ReactFlowPageProps> = ({ onBack }) => {
                         </div>
                         <p className="text-xs text-slate-500 mt-1">Drag nodes to the canvas</p>
                     </div>
-                    
+
                     <div className="p-4 space-y-3 flex-1 overflow-y-auto custom-scrollbar">
                         {/* Basic Group */}
                         <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Basic</div>
-                        
-                        <div 
-                            draggable 
+
+                        <div
+                            draggable
                             onDragStart={(e) => handleDragStart(e, 'input')}
                             className="p-3 border border-slate-200 rounded-lg bg-white cursor-grab hover:border-blue-400 hover:shadow-sm transition-all flex items-center gap-3 group select-none"
                         >
                             <FileInput size={16} className="text-blue-500 group-hover:scale-110 transition-transform" />
                             <span className="font-medium text-sm text-slate-700">Input</span>
                         </div>
-                        
-                        <div 
-                            draggable 
+
+                        <div
+                            draggable
                             onDragStart={(e) => handleDragStart(e, 'process')}
                             className="p-3 border border-slate-200 rounded-lg bg-white cursor-grab hover:border-purple-400 hover:shadow-sm transition-all flex items-center gap-3 group select-none"
                         >
                             <Cpu size={16} className="text-purple-500 group-hover:scale-110 transition-transform" />
                             <span className="font-medium text-sm text-slate-700">Process</span>
                         </div>
-                        
-                        <div 
-                            draggable 
+
+                        <div
+                            draggable
                             onDragStart={(e) => handleDragStart(e, 'output')}
                             className="p-3 border border-slate-200 rounded-lg bg-white cursor-grab hover:border-green-400 hover:shadow-sm transition-all flex items-center gap-3 group select-none"
                         >
@@ -298,8 +294,8 @@ export const ReactFlowPage: React.FC<ReactFlowPageProps> = ({ onBack }) => {
                         {/* Advanced Group */}
                         <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 mt-4">Advanced</div>
 
-                        <div 
-                            draggable 
+                        <div
+                            draggable
                             onDragStart={(e) => handleDragStart(e, 'database')}
                             className="p-3 border border-slate-200 rounded-lg bg-white cursor-grab hover:border-amber-400 hover:shadow-sm transition-all flex items-center gap-3 group select-none"
                         >
@@ -307,8 +303,8 @@ export const ReactFlowPage: React.FC<ReactFlowPageProps> = ({ onBack }) => {
                             <span className="font-medium text-sm text-slate-700">Database</span>
                         </div>
 
-                        <div 
-                            draggable 
+                        <div
+                            draggable
                             onDragStart={(e) => handleDragStart(e, 'api')}
                             className="p-3 border border-slate-200 rounded-lg bg-white cursor-grab hover:border-cyan-400 hover:shadow-sm transition-all flex items-center gap-3 group select-none"
                         >
@@ -316,8 +312,8 @@ export const ReactFlowPage: React.FC<ReactFlowPageProps> = ({ onBack }) => {
                             <span className="font-medium text-sm text-slate-700">API</span>
                         </div>
 
-                        <div 
-                            draggable 
+                        <div
+                            draggable
                             onDragStart={(e) => handleDragStart(e, 'decision')}
                             className="p-3 border border-slate-200 rounded-lg bg-white cursor-grab hover:border-orange-400 hover:shadow-sm transition-all flex items-center gap-3 group select-none"
                         >
@@ -335,7 +331,7 @@ export const ReactFlowPage: React.FC<ReactFlowPageProps> = ({ onBack }) => {
                 </div>
 
                 {/* Canvas Area */}
-                <div 
+                <div
                     className="flex-1 relative bg-slate-50 overflow-hidden"
                     onDrop={handleDrop}
                     onDragOver={handleDragOver}
@@ -354,16 +350,16 @@ export const ReactFlowPage: React.FC<ReactFlowPageProps> = ({ onBack }) => {
                     )}
 
                     {/* Grid Pattern */}
-                    <div 
-                        className="absolute inset-0 opacity-[0.03] pointer-events-none" 
-                        style={{ 
-                            backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', 
-                            backgroundSize: `${20 * zoom}px ${20 * zoom}px` 
+                    <div
+                        className="absolute inset-0 opacity-[0.03] pointer-events-none"
+                        style={{
+                            backgroundImage: 'radial-gradient(#000 1px, transparent 1px)',
+                            backgroundSize: `${20 * zoom}px ${20 * zoom}px`
                         }}
                     ></div>
 
                     {/* Transform Container */}
-                    <div 
+                    <div
                         className="w-full h-full origin-top-left"
                         style={{ transform: `scale(${zoom})` }}
                     >
@@ -378,25 +374,25 @@ export const ReactFlowPage: React.FC<ReactFlowPageProps> = ({ onBack }) => {
                                 const sy = sourceNode.position.y + 50; // Approximated center-ish
                                 const tx = targetNode.position.x;
                                 const ty = targetNode.position.y + 50;
-                                
+
                                 const isSelected = selectedId === edge.id;
 
                                 return (
                                     <g key={edge.id} onClick={(e) => { e.stopPropagation(); setSelectedId(edge.id); }} className="pointer-events-auto cursor-pointer group">
                                         {/* Invisible wider path for easier clicking */}
-                                        <path 
+                                        <path
                                             d={`M ${sx} ${sy} C ${sx + 50} ${sy} ${tx - 50} ${ty} ${tx} ${ty}`}
-                                            stroke="transparent" 
+                                            stroke="transparent"
                                             strokeWidth="15"
-                                            fill="none" 
+                                            fill="none"
                                         />
                                         {/* Visible path */}
-                                        <path 
+                                        <path
                                             d={`M ${sx} ${sy} C ${sx + 50} ${sy} ${tx - 50} ${ty} ${tx} ${ty}`}
-                                            stroke={isSelected ? "#ec4899" : "#94a3b8"} 
+                                            stroke={isSelected ? "#ec4899" : "#94a3b8"}
                                             strokeWidth={isSelected ? "3" : "2"}
                                             fill="none"
-                                            className="transition-colors duration-200 group-hover:stroke-pink-400" 
+                                            className="transition-colors duration-200 group-hover:stroke-pink-400"
                                         />
                                     </g>
                                 );
@@ -415,25 +411,25 @@ export const ReactFlowPage: React.FC<ReactFlowPageProps> = ({ onBack }) => {
                             const Icon = styles.icon;
                             const isSelected = selectedId === node.id;
                             const isEditing = editingNodeId === node.id;
-                            
+
                             return (
                                 <div
                                     key={node.id}
-                                    style={{ 
-                                        left: node.position.x, 
+                                    style={{
+                                        left: node.position.x,
                                         top: node.position.y,
-                                        width: '192px' 
+                                        width: '192px'
                                     }}
                                     className={`absolute rounded-xl border-2 shadow-sm transition-shadow bg-white ${isSelected ? 'ring-2 ring-pink-500/50 shadow-md border-pink-500' : 'border-slate-200'}`}
                                     onMouseDown={(e) => onNodeMouseDown(e, node.id)}
                                 >
                                     {/* Header Stripe */}
                                     <div className={`h-1.5 w-full rounded-t-[10px] opacity-75 ${styles.header}`}></div>
-                                    
+
                                     <div className="p-3">
                                         <div className="flex items-center justify-between mb-1">
                                             {isEditing ? (
-                                                <input 
+                                                <input
                                                     autoFocus
                                                     className="w-full text-sm font-semibold border-b border-pink-500 outline-none bg-transparent"
                                                     value={node.label}
@@ -443,7 +439,7 @@ export const ReactFlowPage: React.FC<ReactFlowPageProps> = ({ onBack }) => {
                                                     onMouseDown={(e) => e.stopPropagation()}
                                                 />
                                             ) : (
-                                                <div 
+                                                <div
                                                     className="font-semibold text-sm text-slate-800 cursor-text truncate"
                                                     onDoubleClick={(e) => {
                                                         e.stopPropagation();
@@ -457,14 +453,14 @@ export const ReactFlowPage: React.FC<ReactFlowPageProps> = ({ onBack }) => {
                                             <Icon size={14} className="text-slate-500 opacity-50 shrink-0 ml-2" />
                                         </div>
                                         <div className="text-[10px] text-slate-500 mt-0.5 uppercase tracking-wide font-medium">{node.type}</div>
-                                        
+
                                         {/* Custom Dropdowns/Content */}
                                         {renderNodeCustomContent(node)}
                                     </div>
 
                                     {/* Handles */}
                                     {node.type !== 'input' && (
-                                        <div 
+                                        <div
                                             className="absolute -left-1.5 top-[calc(50%+4px)] -translate-y-1/2 w-3 h-3 bg-white border-2 border-slate-400 rounded-full cursor-crosshair hover:border-pink-500 hover:scale-125 transition-all z-10"
                                             onMouseUp={(e) => handleConnectEnd(e, node.id)}
                                             title="Connect Input"
@@ -472,7 +468,7 @@ export const ReactFlowPage: React.FC<ReactFlowPageProps> = ({ onBack }) => {
                                     )}
 
                                     {node.type !== 'output' && (
-                                        <div 
+                                        <div
                                             className="absolute -right-1.5 top-[calc(50%+4px)] -translate-y-1/2 w-3 h-3 bg-white border-2 border-slate-400 rounded-full cursor-crosshair hover:bg-pink-500 hover:border-pink-500 transition-all z-10"
                                             onMouseDown={(e) => handleConnectStart(e, node.id)}
                                             title="Connect Output"
@@ -485,11 +481,11 @@ export const ReactFlowPage: React.FC<ReactFlowPageProps> = ({ onBack }) => {
 
                     {/* Floating Controls */}
                     <div className="absolute bottom-6 left-6 flex flex-col gap-2 bg-white p-1.5 rounded-xl shadow-lg border border-slate-200/60 z-30">
-                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-slate-100" onClick={() => setZoom(z => Math.min(z + 0.1, 2))}><Plus size={18}/></Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-slate-100" onClick={() => setZoom(z => Math.min(z + 0.1, 2))}><Plus size={18} /></Button>
                         <div className="h-[1px] bg-slate-100 w-full"></div>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-slate-100" onClick={() => setZoom(z => Math.max(z - 0.1, 0.5))}><Minus size={18}/></Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-slate-100" onClick={() => setZoom(z => Math.max(z - 0.1, 0.5))}><Minus size={18} /></Button>
                     </div>
-                    
+
                     {/* Selection Controls */}
                     {selectedId && (
                         <div className="absolute top-6 left-1/2 -translate-x-1/2 bg-white px-2 py-1.5 rounded-lg shadow-md border border-slate-200 flex items-center gap-1 z-30 animate-in fade-in slide-in-from-top-2">

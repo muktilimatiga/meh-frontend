@@ -29,7 +29,7 @@ interface AppState {
   isSidebarCollapsed: boolean;
   toggleSidebar: () => void;
   setSidebarCollapsed: (collapsed: boolean) => void;
-  
+
   // Session State
   user: User | null;
   login: (user: User) => void;
@@ -58,17 +58,21 @@ interface AppState {
   isSearchOpen: boolean;
   toggleSearch: () => void;
   setSearchOpen: (open: boolean) => void;
+  globalSearchQuery: string;
+  setGlobalSearchQuery: (query: string) => void;
 
   // AI Chat State
   isAIChatOpen: boolean;
   toggleAIChat: () => void;
+  aiResponse: string | null;
+  setAiResponse: (response: string | null) => void;
 }
 
 export const useAppStore = create<AppState>((set) => ({
   isSidebarCollapsed: true, // Default to collapsed/narrow view
   toggleSidebar: () => set((state) => ({ isSidebarCollapsed: !state.isSidebarCollapsed })),
   setSidebarCollapsed: (collapsed) => set({ isSidebarCollapsed: collapsed }),
-  
+
   user: {
     id: 'u1',
     name: 'Alex Carter',
@@ -78,8 +82,8 @@ export const useAppStore = create<AppState>((set) => ({
   },
   login: (user) => set({ user }),
   logout: () => set({ user: null }),
-  updateUser: (updates) => set((state) => ({ 
-    user: state.user ? { ...state.user, ...updates } : null 
+  updateUser: (updates) => set((state) => ({
+    user: state.user ? { ...state.user, ...updates } : null
   })),
 
   settings: DEFAULT_SETTINGS,
@@ -93,9 +97,9 @@ export const useAppStore = create<AppState>((set) => ({
   isCliOpen: false,
   isCliMinimized: false,
   // When toggling, if we are opening, ensure we aren't minimized
-  toggleCli: () => set((state) => ({ 
+  toggleCli: () => set((state) => ({
     isCliOpen: !state.isCliOpen,
-    isCliMinimized: !state.isCliOpen ? false : state.isCliMinimized 
+    isCliMinimized: !state.isCliOpen ? false : state.isCliMinimized
   })),
   setIsCliMinimized: (minimized) => set({ isCliMinimized: minimized }),
 
@@ -105,7 +109,11 @@ export const useAppStore = create<AppState>((set) => ({
   isSearchOpen: false,
   toggleSearch: () => set((state) => ({ isSearchOpen: !state.isSearchOpen })),
   setSearchOpen: (open) => set({ isSearchOpen: open }),
+  globalSearchQuery: '',
+  setGlobalSearchQuery: (query) => set({ globalSearchQuery: query }),
 
   isAIChatOpen: false,
   toggleAIChat: () => set((state) => ({ isAIChatOpen: !state.isAIChatOpen })),
+  aiResponse: null,
+  setAiResponse: (response) => set({ aiResponse: response }),
 }));

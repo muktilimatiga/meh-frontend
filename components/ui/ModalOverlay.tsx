@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { X } from 'lucide-react';
 import { Button } from './Button';
+import { cn } from '@/lib/utils';
 
 interface ModalOverlayProps {
     isOpen: boolean;
@@ -8,14 +9,16 @@ interface ModalOverlayProps {
     children: React.ReactNode;
     hideCloseButton?: boolean;
     className?: string;
+    backdropClass?: string;
 }
 
-export const ModalOverlay: React.FC<ModalOverlayProps> = ({ 
-    isOpen, 
-    onClose, 
-    children, 
+export const ModalOverlay: React.FC<ModalOverlayProps> = ({
+    isOpen,
+    onClose,
+    children,
     hideCloseButton = false,
-    className = '' 
+    className = '',
+    backdropClass = ''
 }) => {
     const overlayRef = React.useRef<HTMLDivElement>(null);
 
@@ -46,21 +49,21 @@ export const ModalOverlay: React.FC<ModalOverlayProps> = ({
     if (!isOpen) return null;
 
     return (
-        <div 
+        <div
             ref={overlayRef}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200"
+            className={cn("fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-300 p-4", backdropClass)}
             onClick={handleBackdropClick}
         >
-            <div 
-                className={`relative w-full bg-background rounded-lg shadow-lg border border-border animate-in zoom-in-95 duration-200 ${className}`}
+            <div
+                className={`relative w-full bg-background/95 backdrop-blur-md rounded-3xl shadow-2xl border border-white/20 dark:border-white/10 animate-in zoom-in-95 slide-in-from-bottom-5 duration-300 ${className}`}
                 role="dialog"
                 aria-modal="true"
             >
                 {!hideCloseButton && (
-                    <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="absolute right-4 top-4 h-6 w-6 rounded-full opacity-70 hover:opacity-100" 
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="absolute right-4 top-4 h-6 w-6 rounded-full opacity-70 hover:opacity-100"
                         onClick={onClose}
                     >
                         <X size={14} />
