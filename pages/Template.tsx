@@ -123,119 +123,90 @@ const INITIAL_TEMPLATES: Template[] = [
 
 // --- Components ---
 
-const TreeRow = ({ 
-  level = 0, 
-  label, 
-  isOpen, 
-  onClick, 
-  icon: Icon,
-  extra,
-  isLeaf = false
-}: { 
-  level?: number, 
-  label: string, 
-  isOpen: boolean, 
-  onClick: () => void, 
-  icon?: any,
-  extra?: React.ReactNode,
-  isLeaf?: boolean
+// --- Components ---
+
+const TemplateCard = ({
+   template,
+   onEdit,
+   onDelete
+}: {
+   template: Template,
+   onEdit: () => void,
+   onDelete: () => void
 }) => {
-  return (
-    <div 
-      onClick={onClick}
-      className={cn(
-        "group flex items-center py-3 pr-4 cursor-pointer border-b border-slate-100 dark:border-white/5 transition-colors select-none",
-        "hover:bg-slate-50 dark:hover:bg-white/5",
-        isOpen && !isLeaf ? "bg-slate-50/50 dark:bg-white/5" : ""
-      )}
-      style={{ paddingLeft: `${level * 16 + 12}px` }}
-    >
-      <div className={cn(
-        "mr-3 flex h-5 w-5 items-center justify-center rounded border transition-colors",
-        isOpen 
-          ? "border-slate-400 bg-slate-100 text-slate-600 dark:border-slate-600 dark:bg-white/10 dark:text-slate-300" 
-          : "border-slate-200 bg-white text-slate-400 dark:border-white/10 dark:bg-black dark:text-slate-500 group-hover:border-indigo-300 dark:group-hover:border-indigo-700"
-      )}>
-        {isOpen ? <Minus className="h-3 w-3" /> : <Plus className="h-3 w-3" />}
-      </div>
-      
-      {Icon && <Icon className="mr-2 h-4 w-4 text-slate-400 group-hover:text-indigo-500 dark:text-slate-500 dark:group-hover:text-indigo-400" />}
-      
-      <span className={cn(
-        "font-medium text-sm transition-colors",
-        isOpen ? "text-indigo-700 dark:text-indigo-400" : "text-slate-700 dark:text-slate-200"
-      )}>
-        {label}
-      </span>
-      
-      {extra && <div className="ml-auto">{extra}</div>}
-    </div>
-  );
-};
+   const [copied, setCopied] = useState(false);
 
-const TemplateContent = ({ 
-  template, 
-  onEdit, 
-  onDelete 
-}: { 
-  template: Template, 
-  onEdit: () => void, 
-  onDelete: () => void 
-}) => {
-  const [copied, setCopied] = useState(false);
+   const handleCopy = (e: React.MouseEvent) => {
+      e.stopPropagation();
+      navigator.clipboard.writeText(template.content);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+   };
 
-  const handleCopy = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    navigator.clipboard.writeText(template.content);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  return (
-    <div className="pl-[52px] pr-4 py-4 bg-slate-50/50 dark:bg-black/20 border-b border-slate-100 dark:border-white/5 animate-in slide-in-from-top-1 duration-200">
-       <div className="relative">
-          <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-slate-200 dark:bg-white/10 -ml-4" />
-          <div className="text-sm text-slate-600 dark:text-slate-300 font-mono bg-white dark:bg-[#111] p-4 rounded-md border border-slate-200 dark:border-white/10 whitespace-pre-wrap">
-             {template.content}
-          </div>
-          <div className="flex items-center justify-between mt-3">
-             <div className="flex gap-2">
-                {template.tags.map(tag => (
-                   <Badge key={tag} variant="secondary" className="text-[10px] font-normal text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-white/10 border-0">
-                      #{tag}
-                   </Badge>
-                ))}
-             </div>
-             <div className="flex gap-2">
-                 <Button 
-                    size="sm" 
-                    variant="ghost" 
-                    className="h-7 text-xs hover:bg-slate-200 dark:hover:bg-white/10" 
-                    onClick={(e) => { e.stopPropagation(); onEdit(); }}
-                 >
-                    <Edit2 className="mr-2 h-3 w-3" /> Edit
-                 </Button>
-                 <Button 
-                    size="sm" 
-                    variant="ghost" 
-                    className="h-7 text-xs text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20" 
-                    onClick={(e) => { e.stopPropagation(); onDelete(); }}
-                 >
-                    <Trash2 className="mr-2 h-3 w-3" /> Delete
-                 </Button>
-                 <Button 
-                    size="sm" 
-                    variant={copied ? 'default' : 'outline'} 
-                    className={cn("h-7 text-xs", copied && "bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-600")}
-                    onClick={handleCopy}
-                 >
-                    {copied ? <><Check className="mr-2 h-3 w-3" /> Copied</> : <><Copy className="mr-2 h-3 w-3" /> Copy</>}
-                 </Button>
-             </div>
-          </div>
-       </div>
-    </div>
-  );
+   return (
+      <Card className="group relative overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 bg-white dark:bg-[#121214] border-slate-300 dark:border-white/5 shadow-md hover:border-indigo-300 dark:hover:border-white/10">
+         <div className="absolute top-0 left-0 w-1 h-full bg-indigo-500/0 group-hover:bg-indigo-500 transition-all duration-300" />
+         
+         <CardHeader className="pb-2">
+            <div className="flex justify-between items-start gap-4">
+               <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                     <Badge variant="secondary" className="bg-indigo-50 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-400 border-0 text-[10px] uppercase tracking-wide font-semibold">
+                        {template.subcategory || template.category}
+                     </Badge>
+                  </div>
+                  <CardTitle className="text-base font-semibold leading-tight text-slate-900 dark:text-slate-100">
+                     {template.title}
+                  </CardTitle>
+               </div>
+               <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={(e) => { e.stopPropagation(); onEdit(); }}
+               >
+                  <Edit2 className="h-4 w-4" />
+               </Button>
+            </div>
+         </CardHeader>
+         
+         <CardContent className="space-y-4">
+            <div className="relative bg-slate-50 dark:bg-black/40 rounded-lg p-3 text-sm text-slate-600 dark:text-slate-400 font-mono line-clamp-3">
+               {template.content}
+            </div>
+            
+            <div className="flex items-center justify-between pt-2">
+               <div className="flex gap-1.5 flex-wrap">
+                  {template.tags.slice(0, 3).map(tag => (
+                     <span key={tag} className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-500 border border-slate-200 dark:border-white/5">
+                        #{tag}
+                     </span>
+                  ))}
+                  {template.tags.length > 3 && (
+                     <span className="text-[10px] px-1.5 py-0.5 text-slate-400">+ {template.tags.length - 3}</span>
+                  )}
+               </div>
+               
+               <div className="flex gap-1">
+                  <Button
+                     size="sm"
+                     variant="ghost"
+                     className={cn(
+                        "h-7 text-xs transition-colors border",
+                         copied 
+                           ? "text-emerald-700 bg-emerald-50 border-emerald-200 dark:bg-emerald-500/10 dark:border-emerald-500/20" 
+                           : "text-slate-500 border-transparent hover:text-indigo-600 hover:bg-indigo-50 hover:border-indigo-100 dark:hover:bg-white/5 dark:hover:border-white/10"
+                     )}
+                     onClick={handleCopy}
+                  >
+                     {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+                     <span className="ml-1.5">{copied ? 'Copied' : 'Copy'}</span>
+                  </Button>
+               </div>
+            </div>
+         </CardContent>
+      </Card>
+   );
 };
 
 // --- Rich Text Editor Simulator ---
@@ -423,32 +394,38 @@ const DeleteConfirmationModal = ({
   );
 };
 
-// --- Main Page ---
-
 export const TemplatePage = () => {
    const [templates, setTemplates] = useState<Template[]>(INITIAL_TEMPLATES);
    const [searchQuery, setSearchQuery] = useState('');
+   const [selectedCategory, setSelectedCategory] = useState<string>('All');
    const [isModalOpen, setIsModalOpen] = useState(false);
    const [editingTemplate, setEditingTemplate] = useState<Template | null>(null);
    const [deletingTemplate, setDeletingTemplate] = useState<Template | null>(null);
-   
-   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({
-      'Customer Service': true,
-      'Broadband Technical': true,
-      'Customer Service-General': true
-   });
 
-   const toggleExpand = (key: string) => {
-      setExpandedItems(prev => ({ ...prev, [key]: !prev[key] }));
-   };
+   // Extract Categories
+   const categories = useMemo(() => {
+      const cats = new Set(templates.map(t => t.category));
+      return ['All', ...Array.from(cats)];
+   }, [templates]);
 
-   // CRUD Handlers
+   const filteredTemplates = useMemo(() => {
+      return templates.filter(t => {
+         const matchesCategory = selectedCategory === 'All' || t.category === selectedCategory;
+         const matchesSearch = 
+            searchQuery === '' ||
+            t.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+            t.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            t.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+         
+         return matchesCategory && matchesSearch;
+      });
+   }, [templates, selectedCategory, searchQuery]);
+
+   // CRUD Handlers (kept same)
    const handleSave = (data: Partial<Template>) => {
       if (editingTemplate) {
-         // Edit
          setTemplates(prev => prev.map(t => t.id === editingTemplate.id ? { ...t, ...data } as Template : t));
       } else {
-         // Create
          const newTemplate: Template = {
             id: Date.now().toString(),
             title: data.title || 'Untitled',
@@ -484,28 +461,8 @@ export const TemplatePage = () => {
       setIsModalOpen(true);
    };
 
-   // Hierarchy Builder
-   const hierarchy = useMemo(() => {
-      const groups: Record<string, Record<string, Template[]>> = {};
-      
-      templates.forEach(t => {
-         const matchesSearch = 
-            searchQuery === '' ||
-            t.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-            t.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            t.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
-
-         if (!matchesSearch) return;
-
-         if (!groups[t.category]) groups[t.category] = {};
-         if (!groups[t.category][t.subcategory]) groups[t.category][t.subcategory] = [];
-         groups[t.category][t.subcategory].push(t);
-      });
-      return groups;
-   }, [searchQuery, templates]);
-
    return (
-      <div className="space-y-6 animate-in fade-in duration-500 pb-20">
+      <div className="space-y-8 animate-in fade-in duration-500 pb-20 px-6 max-w-[1600px] mx-auto">
          <TemplateModal 
             isOpen={isModalOpen} 
             onClose={() => setIsModalOpen(false)} 
@@ -520,117 +477,76 @@ export const TemplatePage = () => {
             templateTitle={deletingTemplate?.title || ''}
          />
 
-         {/* Header */}
-         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-               <p className="text-slate-500 dark:text-slate-400">Manage support templates and canned responses.</p>
-            </div>
-            <div className="flex gap-2">
-               <Button onClick={openCreateModal}>
-                  <Plus className="mr-2 h-4 w-4" /> Add Template
+         {/* Header & Controls */}
+         <div className="flex flex-col gap-8">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+               <div className="space-y-1">
+                  <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Templates</h1>
+                  <p className="text-slate-500 dark:text-slate-400 max-w-lg text-lg">
+                     Manage and organize your canned responses and support templates for faster communication.
+                  </p>
+               </div>
+               <Button onClick={openCreateModal} className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-500/20 active:scale-95 transition-transform">
+                  <Plus className="mr-2 h-4 w-4" /> New Template
                </Button>
             </div>
-         </div>
 
-         {/* Search Bar */}
-         <div className="relative max-w-2xl">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-            <Input 
-                placeholder="Search templates..." 
-                className="pl-9 bg-white dark:bg-black border-slate-200 dark:border-white/20"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-            />
-         </div>
+            <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-slate-50/80 dark:bg-[#121214] p-2 rounded-xl border border-slate-200 dark:border-white/5 shadow-sm">
+                {/* Category Filters */}
+               <div className="flex items-center gap-1 overflow-x-auto no-scrollbar w-full md:w-auto p-1">
+                  {categories.map(cat => (
+                     <button
+                        key={cat}
+                        onClick={() => setSelectedCategory(cat)}
+                        className={cn(
+                           "px-4 py-1.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap",
+                           selectedCategory === cat 
+                              ? "bg-indigo-600 text-white shadow-md shadow-indigo-500/20" 
+                              : "text-slate-600 dark:text-slate-400 hover:bg-white hover:shadow-sm dark:hover:bg-white/5"
+                        )}
+                     >
+                        {cat}
+                     </button>
+                  ))}
+               </div>
 
-         {/* Tree View Content */}
-         <Card className="dark:bg-black dark:border-white/20 overflow-hidden">
-            <div className="min-h-[400px]">
-               {Object.keys(hierarchy).length === 0 ? (
-                  <div className="flex flex-col items-center justify-center h-[400px] text-slate-400">
-                     <Search className="h-8 w-8 mb-2 opacity-50" />
-                     <p>No templates found matching "{searchQuery}"</p>
-                  </div>
-               ) : (
-                  Object.entries(hierarchy).map(([category, subcategories]) => (
-                     <Fragment key={category}>
-                        {/* Level 1: Category */}
-                        <TreeRow 
-                           level={0}
-                           label={category}
-                           icon={FolderOpen}
-                           isOpen={!!expandedItems[category]}
-                           onClick={() => toggleExpand(category)}
-                           extra={<Badge variant="outline" className="text-[10px] text-slate-500">{Object.values(subcategories).flat().length}</Badge>}
-                        />
-                        
-                        {expandedItems[category] && Object.entries(subcategories).map(([subcategory, templates]) => {
-                           const subKey = `${category}-${subcategory}`;
-                           return (
-                              <Fragment key={subKey}>
-                                 {/* Level 2: Subcategory */}
-                                 <TreeRow 
-                                    level={1}
-                                    label={subcategory}
-                                    icon={CornerDownRight}
-                                    isOpen={!!expandedItems[subKey]}
-                                    onClick={() => toggleExpand(subKey)}
-                                 />
-
-                                 {/* Level 3: Templates */}
-                                 {expandedItems[subKey] && templates.map(template => {
-                                    const tmplKey = `tmpl-${template.id}`;
-                                    const isOpen = !!expandedItems[tmplKey];
-                                    return (
-                                       <Fragment key={template.id}>
-                                          <TreeRow 
-                                             level={2}
-                                             label={template.title}
-                                             icon={FileText}
-                                             isOpen={isOpen}
-                                             isLeaf={true}
-                                             onClick={() => toggleExpand(tmplKey)}
-                                             extra={<span className="text-[10px] text-slate-400">{template.usageCount} uses</span>}
-                                          />
-                                          {isOpen && (
-                                             <TemplateContent 
-                                                template={template} 
-                                                onEdit={() => openEditModal(template)} 
-                                                onDelete={() => initiateDelete(template)}
-                                             />
-                                          )}
-                                       </Fragment>
-                                    );
-                                 })}
-                              </Fragment>
-                           );
-                        })}
-                     </Fragment>
-                  ))
-               )}
+               {/* Search */}
+               <div className="relative w-full md:w-72">
+                  <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                  <Input 
+                        placeholder="Search templates..." 
+                        className="pl-9 h-10 bg-slate-50 dark:bg-black/20 border-slate-200 dark:border-white/10 focus:bg-white dark:focus:bg-black/40 focus:ring-2 focus:ring-indigo-500/20 transition-all rounded-lg"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+               </div>
             </div>
-         </Card>
-
-         {/* Settings Footer */}
-         <div className="pt-8 border-t border-slate-200 dark:border-white/10">
-            <Card className="dark:bg-black dark:border-white/20">
-               <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                     <SettingsIcon className="h-5 w-5 text-slate-500" /> 
-                     <span>Global Configuration</span>
-                  </CardTitle>
-               </CardHeader>
-               <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between">
-                     <div className="space-y-0.5">
-                        <Label className="text-base">Auto-Append Signature</Label>
-                        <p className="text-xs text-slate-500">Automatically add agent signature to all templates.</p>
-                     </div>
-                     <Switch checked={true} onCheckedChange={() => {}} />
-                  </div>
-               </CardContent>
-            </Card>
          </div>
+
+         {/* Content Grid */}
+         {filteredTemplates.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-20 text-slate-400 bg-slate-50/50 dark:bg-white/5 rounded-2xl border border-dashed border-slate-200 dark:border-white/10">
+               <div className="h-16 w-16 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center mb-4">
+                  <Search className="h-8 w-8 opacity-40 ps-1" />
+               </div>
+               <h3 className="text-lg font-medium text-slate-900 dark:text-white">No templates found</h3>
+               <p className="text-sm mt-1">Try adjusting your search or filters.</p>
+               <Button variant="link" onClick={() => {setSearchQuery(''); setSelectedCategory('All');}} className="mt-2 text-indigo-500">
+                  Clear all filters
+               </Button>
+            </div>
+         ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+               {filteredTemplates.map(template => (
+                  <TemplateCard 
+                     key={template.id} 
+                     template={template} 
+                     onEdit={() => openEditModal(template)}
+                     onDelete={() => initiateDelete(template)}
+                  />
+               ))}
+            </div>
+         )}
       </div>
    );
 };

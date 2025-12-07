@@ -7,6 +7,8 @@ import { BroadbandPage } from './pages/Broadband';
 import { DatabasePage } from './pages/Database';
 import { LogsPage } from './pages/Logs';
 import { TemplatePage } from './pages/Template';
+import { LogKomplainPage } from './pages/LogKomplain';
+import { RemotesPage } from './pages/Remotes';
 
 // 1. Create a root route
 const rootRoute = createRootRoute({
@@ -56,6 +58,18 @@ const templateRoute = createRoute({
     component: TemplatePage,
 });
 
+const logKomplainRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/log-komplain',
+    component: LogKomplainPage,
+});
+
+const remotesRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/remotes',
+    component: RemotesPage,
+});
+
 // 3. Create the route tree
 const routeTree = rootRoute.addChildren([
     indexRoute,
@@ -64,6 +78,8 @@ const routeTree = rootRoute.addChildren([
     broadbandRoute,
     databaseRoute,
     logsRoute,
+    logKomplainRoute,
+    remotesRoute,
     templateRoute,
 ]);
 

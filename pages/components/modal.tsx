@@ -192,6 +192,7 @@ export const CreateTicketModal = ({ isOpen, onClose }: { isOpen: boolean, onClos
     };
 
     return (
+        // Open Ticket Modal
         <ModalOverlay isOpen={isOpen} onClose={handleClose} className="max-w-2xl max-h-[85vh] flex flex-col p-0 overflow-hidden">
             <div className="flex-1 overflow-y-auto">
 
@@ -697,7 +698,7 @@ export const ConfigModal = ({ isOpen, onClose, type }: { isOpen: boolean, onClos
 
     return (
         <ModalOverlay isOpen={isOpen} onClose={onClose} className="max-w-[550px]" backdropClass="bg-black/80 backdrop-blur-md">
-            <div className="space-y-6">
+            <div className="space-y-4">
                 <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-white/10">
                     <div>
                         <h2 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
