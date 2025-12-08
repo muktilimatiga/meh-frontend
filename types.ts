@@ -15,19 +15,9 @@ export interface UserProfile {
     role: string;
 }
 
-export interface Customer {
-    olt_name: string;
-    interface: string;
-    nameaddres: string;
-    sn: string;
-    modemt_type: string;
-    status: string;
-    last_uptime: string;
-    rx_power_dbm: string;
-    rx_power_str: string;
-    raw_onuid: string;
-    last_updated: Date;
-}
+// Merged into the main Customer interface below
+// export interface Customer { ... }
+
 
 export interface CustomerPSB {
     name: string;
@@ -166,12 +156,29 @@ class ApiError extends Error {
 }
 
 // Customer-related types
+
 export interface Customer {
   id: string;
   name?: string;
   user_pppoe?: string;
   detail_url: string;
+  address?: string;
+  alamat?: string;
+  nameaddres?: string; 
+  // Merged properties from previous Customer definition
+  olt_name?: string;
+  interface?: string;
+  sn?: string;
+  modemt_type?: string;
+  status?: string;
+  last_uptime?: string;
+  rx_power_dbm?: string;
+  rx_power_str?: string;
+  raw_onuid?: string;
+  last_updated?: Date;
 }
+
+
 
 export interface DataPSB {
   name?: string;

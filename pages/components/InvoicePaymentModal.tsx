@@ -1,10 +1,11 @@
 
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import { X, Copy, Send, DollarSign } from 'lucide-react';
+import { X, Copy, Send, DollarSign, CheckCircle, AlertCircle } from 'lucide-react';
 import { ModalOverlay, Label, Input, Textarea, Button, Separator } from '@/components/ui'
 import { Customer } from '@/types'
 import { useLogActivity } from '@/hooks/useQueries';
+import { useCustomerInvoices } from '@/hooks/useQueriesExternal';
 
 interface InvoicePaymentModalProps {
   isOpen: boolean;
@@ -13,42 +14,92 @@ interface InvoicePaymentModalProps {
 }
 
 export const InvoicePaymentModal = ({ isOpen, onClose, user }: InvoicePaymentModalProps) => {
-  const [amount, setAmount] = useState('170000');
-  const [phone, setPhone] = useState('6282231311855'); // Default/Mock phone
+  const [amount, setAmount] = useState('');
+  const [phone, setPhone] = useState('6282231311855'); 
   const [message, setMessage] = useState('');
   
   const logActivity = useLogActivity();
   
-  // Mock Data generation based on selected user
-  const internetId = React.useMemo(() => Math.floor(100000000000 + Math.random() * 900000000000).toString(), [user]);
-  const paymentLink = React.useMemo(() => `https://payment.lexxadata.net.id/?id=${Math.random().toString(16).substr(2, 8)}`, [user]);
+  // Fetch real invoices
+  const query = user?.user_pppoe || user?.name || '';
+  const { data: customersWithInvoices, isLoading } = useCustomerInvoices(query, !!query);
+
+  // Determine active invoice data
+  const invoiceData = React.useMemo(() => {
+    if (!customersWithInvoices || customersWithInvoices.length === 0) return null;
+    const customer = customersWithInvoices[0];
+    const latestInvoice = customer.invoices && customer.invoices.length > 0 ? customer.invoices[0] : null;
+    return { 
+        ...customer, 
+        currentInvoice: latestInvoice 
+    };
+  }, [customersWithInvoices]);
+
+  // Derived values
+  const internetId = user?.user_pppoe || user?.id || '-';
+  // Use payment_link from invoice if available, else detail_url, else fallback
+  const paymentLink = invoiceData?.currentInvoice?.payment_link || invoiceData?.detail_url; 
+  
   const currentDate = new Date();
   const monthName = currentDate.toLocaleString('default', { month: 'long' });
   const year = currentDate.getFullYear();
   const deadlineDate = new Date(currentDate.setDate(currentDate.getDate() + 7)).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
 
+  // Status Detection
+  const isPaid = React.useMemo(() => {
+      if (!invoiceData?.currentInvoice) return false;
+      
+      // New Backend Logic: explicit status
+      if (invoiceData.currentInvoice.status) {
+          return invoiceData.currentInvoice.status !== 'Unpaid';
+      }
+
+      // Old Logic: If this_month is explicitly null and no arrears, it's paid
+      return invoiceData.currentInvoice.this_month === null && (invoiceData.currentInvoice.arrears_count || 0) === 0;
+  }, [invoiceData]);
+
+  const hasArrears = (invoiceData?.currentInvoice?.arrears_count || 0) > 0 || (invoiceData?.currentInvoice?.status === 'Unpaid');
+
+  // Update amount from API if available
+  useEffect(() => {
+    if (isPaid) {
+        setAmount('0');
+    } else if (invoiceData?.currentInvoice?.this_month) {
+        // Old Logic
+        const cleanAmount = invoiceData.currentInvoice.this_month.replace(/[^0-9]/g, '');
+        setAmount(cleanAmount);
+    } else if (invoiceData?.currentInvoice?.package) {
+        // New Logic: Extract from "CIGNAL 10M (Rp 111.000)"
+        const match = invoiceData.currentInvoice.package.match(/Rp\s*([\d\.]+)/);
+        if (match && match[1]) {
+            setAmount(match[1].replace(/\./g, ''));
+        } else {
+             setAmount('170000'); // Fallback if parse fails
+        }
+    } else if (!amount && !isLoading && invoiceData) {
+        setAmount('170000'); 
+    }
+  }, [invoiceData, isPaid, isLoading]);
+
   // Update message when dependencies change
   useEffect(() => {
     if (!user) return;
 
+    // If API provides a ready-to-use description, use it (only if unpaid/billing)
+    if (!isPaid && invoiceData?.currentInvoice?.description) {
+        setMessage(invoiceData.currentInvoice.description);
+        return;
+    }
+
+    const customerName = (user.name || user.nameaddres || 'Pelanggan').toUpperCase();
     const formattedAmount = new Intl.NumberFormat('id-ID', {
       style: 'currency',
       currency: 'IDR',
       minimumFractionDigits: 0
     }).format(Number(amount.replace(/[^0-9]/g, '')));
 
-    const msg = `Pelanggan Yth, *${user.nameaddres.toUpperCase()}*
-Berikut detail tagihan internet bulan ${monthName} ${year},
-
-No Internet : ${internetId}
-Nama: ${user.nameaddres.toUpperCase()}
-Tagihan : ${formattedAmount}
-Link Payment : ${paymentLink}
-
-Silahkan melakukan pembayaran sebelum tanggal ${deadlineDate}. Agar internet Anda tidak terisolir oleh sistem.`;
-
-    setMessage(msg);
-  }, [user, amount, internetId, paymentLink, monthName, year, deadlineDate]);
+    setMessage(invoiceData?.currentInvoice?.description || '');
+  }, [user, amount, internetId, paymentLink, monthName, year, deadlineDate, isPaid, invoiceData]);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(message);
@@ -62,9 +113,9 @@ Silahkan melakukan pembayaran sebelum tanggal ${deadlineDate}. Agar internet And
     logActivity.mutate({
         level: 'info',
         source: 'Invoice',
-        message: `Invoice sent to ${user?.nameaddres  }`,
-        user: 'Admin', // Assuming current user is admin
-        metadata: { amount, phone, internetId }
+        message: `Invoice sent to ${user?.name || 'Customer'} (${isPaid ? 'Lunas' : 'Tagihan'})`,
+        name: 'Admin', 
+        metadata: { amount, phone, internetId, status: isPaid ? 'PAID' : 'UNPAID' }
     });
 
     window.open(whatsappUrl, '_blank');
@@ -73,40 +124,64 @@ Silahkan melakukan pembayaran sebelum tanggal ${deadlineDate}. Agar internet And
 
   if (!user) return null;
 
-  // Mock Address based on user ID logic or static for demo
-  const mockAddress = "DSN. KRAJAN, 02/03, NGENTRONG, CAMPURDARAT"; 
+  const address = user.address || user.alamat || "Alamat tidak tersedia"; 
 
   return (
     <ModalOverlay isOpen={isOpen} onClose={onClose} hideCloseButton={true} className="max-w-lg p-0 overflow-hidden flex flex-col max-h-[90vh]">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-slate-100 dark:border-white/10 bg-slate-50/50 dark:bg-white/5">
          <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
-               <DollarSign className="h-4 w-4" />
+            <div className={`h-8 w-8 rounded-full flex items-center justify-center ${isPaid ? 'bg-emerald-100 text-emerald-600' : 'bg-indigo-100 text-indigo-600'}`}>
+               {isPaid ? <CheckCircle className="h-4 w-4" /> : <DollarSign className="h-4 w-4" />}
             </div>
-            <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Send Invoice</h2>
+            <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+                {isPaid ? 'Payment Status' : 'Send Invoice'}
+            </h2>
          </div>
          <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8"><X className="h-4 w-4" /></Button>
       </div>
 
       <div className="flex-1 overflow-y-auto p-6 space-y-5">
         
-        {/* User Details Section (Read-Only) */}
-        <div className="space-y-4">
-            <div className="space-y-2">
-                <Label className="text-xs text-slate-500 uppercase tracking-wider font-semibold">Customer Details</Label>
-                <div className="grid gap-3 p-3 bg-slate-50 dark:bg-white/5 rounded-lg border border-slate-100 dark:border-white/5">
-                    <div>
-                        <Label className="text-xs text-slate-400">Name</Label>
-                        <div className="text-sm font-medium text-slate-900 dark:text-white">{user.name}</div>
+        {/* Loading State or User Details */}
+        {isLoading ? (
+            <div className="p-4 text-center text-slate-500">Loading invoice details...</div>
+        ) : (
+            <div className="space-y-4">
+                {/* Status Banners */}
+                {isPaid && (
+                     <div className="p-3 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 text-sm rounded-lg border border-emerald-100 dark:border-emerald-900/30 flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4" />
+                        <span className="font-medium">Tagihan bulan ini sudah LUNAS.</span>
                     </div>
-                    <div>
-                        <Label className="text-xs text-slate-400">Address</Label>
-                        <div className="text-sm font-medium text-slate-900 dark:text-white">{mockAddress}</div>
+                )}
+                
+                {hasArrears && !isPaid && (
+                    <div className="p-3 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 text-sm rounded-lg border border-red-100 dark:border-red-900/30 flex items-center gap-2">
+                        <AlertCircle className="h-4 w-4" />
+                        <span className="font-medium">Perhatian: Ada tunggakan {invoiceData?.currentInvoice?.arrears_count} bulan.</span>
+                    </div>
+                )}
+
+                <div className="space-y-2">
+                    <Label className="text-xs text-slate-500 uppercase tracking-wider font-semibold">Customer Details</Label>
+                    <div className="grid gap-3 p-3 bg-slate-50 dark:bg-white/5 rounded-lg border border-slate-100 dark:border-white/5">
+                        <div>
+                            <Label className="text-xs text-slate-400">Name</Label>
+                            <div className="text-sm font-medium text-slate-900 dark:text-white">{user.name || user.nameaddres}</div>
+                        </div>
+                        <div>
+                            <Label className="text-xs text-slate-400">Address</Label>
+                            <div className="text-sm font-medium text-slate-900 dark:text-white">{address}</div>
+                        </div>
+                         <div>
+                            <Label className="text-xs text-slate-400">PPPoE / ID</Label>
+                            <div className="text-sm font-medium text-slate-900 dark:text-white">{user.user_pppoe || '-'}</div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        )}
 
         <Separator />
 
@@ -128,7 +203,8 @@ Silahkan melakukan pembayaran sebelum tanggal ${deadlineDate}. Agar internet And
                         id="amount" 
                         value={amount} 
                         onChange={(e) => setAmount(e.target.value)}
-                        className="font-mono text-sm"
+                        className={`font-mono text-sm ${isPaid ? 'text-slate-400' : ''}`}
+                        readOnly={isPaid}
                     />
                 </div>
             </div>

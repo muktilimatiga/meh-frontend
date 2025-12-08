@@ -7,19 +7,20 @@ import { Badge } from '../components/ui/Badge';
 import { Avatar } from '../components/ui/Avatar';
 import { Tooltip } from '../components/ui/Tooltip';
 import { Input } from '../components/ui/Input';
-import { User } from '@/types';
+import { Customer } from '@/types';
 import { Plus, Download, Receipt, RefreshCw, Router, MapPin, Globe, ArrowLeft } from 'lucide-react';
 import { useSupabaseCustomers } from '@/hooks/useSupabaseCustomers';
 import { InvoicePaymentModal } from './components/InvoicePaymentModal';
 
 import { useNavigate } from '@tanstack/react-router';
 import { useAppStore } from '@/store';
+import { useTicketStore } from './stores/ticketStore';
 
 export const BroadbandPage = () => {
    // Use the new Supabase hook with search capabilities
    const { data: customers, loading, searchTerm, setSearchTerm } = useSupabaseCustomers();
    const { globalSearchQuery } = useAppStore();
-   const [selectedInvoiceUser, setSelectedInvoiceUser] = useState<User | null>(null);
+   const selectedInvoiceUser = useTicketStore((state) => state.selectedUser);
 
    // Sync global search to local hook
    React.useEffect(() => {
@@ -96,7 +97,7 @@ export const BroadbandPage = () => {
                      size="icon"
                      variant="ghost"
                      className="h-8 w-8 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 dark:text-indigo-400 dark:hover:bg-indigo-900/20"
-                     onClick={(e) => { e.stopPropagation(); setSelectedInvoiceUser(row.original); }}
+                     onClick={(e) => { e.stopPropagation(); useTicketStore.setState({ selectedUser: row.original }); }}
                   >
                      <Receipt className="h-4 w-4" />
                   </Button>
@@ -114,7 +115,7 @@ export const BroadbandPage = () => {
          <InvoicePaymentModal
             isOpen={!!selectedInvoiceUser}
             user={selectedInvoiceUser}
-            onClose={() => setSelectedInvoiceUser(null)}
+            onClose={() => useTicketStore.setState({ selectedUser: null })}
          />
 
          {/* Page Header matching Database.tsx style */}
