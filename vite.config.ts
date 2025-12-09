@@ -20,7 +20,10 @@ export default defineConfig(({ mode }) => {
       },
       resolve: {
         alias: {
-          '@': path.resolve(__dirname, '.'),
+          '@': path.resolve(__dirname, './'),
+          '@stores': path.resolve(__dirname, './stores'),
+          '@components': path.resolve(__dirname, './components'),
+          '@hooks': path.resolve(__dirname, './hooks'),
         }
       }
     };

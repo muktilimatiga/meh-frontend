@@ -1,9 +1,9 @@
 import React from 'react';
-import { User } from '../../types';
+import { Customer } from '@/types';
 import { Badge, Avatar, Button } from '@/components/ui';
 
 interface CustomerCardProps {
-  user: User;
+  user: Customer;
   onChangeUser?: () => void;
 }
 

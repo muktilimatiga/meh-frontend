@@ -36,7 +36,13 @@ export const useSupabaseCustomers = () => {
                 // Map data_fiber rows to a structure compatible with User type but preserving extra fields
                 const mapped = (rows || []).map((row: any) => ({
                     ...row,
-                   
+                   name: row.customer_name,
+                   alamat: row.address,
+                   user_pppoe: row.user_pppoe,
+                   onu_sn: row.configured_sn,
+                   status: row.onu_status,
+                   rx: row.rx_power_str,
+                   last_updated: row.snmp_last_updated,
                 }));
 
                 setData(mapped);

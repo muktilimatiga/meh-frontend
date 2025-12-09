@@ -21,9 +21,9 @@ export interface UserProfile {
 
 export interface CustomerPSB {
   name: string;
-  alamat: string;
+  address: string;
   user_pppoe: string;
-  password_pppoe: string;
+  pppoe_password: string;
   paket: string;
 }
 
@@ -175,6 +175,8 @@ export interface Customer {
   rx_power_dbm?: string;
   rx_power_str?: string;
   raw_onuid?: string;
+  email?: string;
+  role?: string;
   last_updated?: Date;
 }
 

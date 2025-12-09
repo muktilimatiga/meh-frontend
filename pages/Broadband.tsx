@@ -14,7 +14,7 @@ import { InvoicePaymentModal } from './components/InvoicePaymentModal';
 
 import { useNavigate } from '@tanstack/react-router';
 import { useAppStore } from '@/store';
-import { useTicketStore } from './stores/ticketStore';
+import { useTicketStore } from '../stores/ticketStore';
 
 export const BroadbandPage = () => {
    // Use the new Supabase hook with search capabilities

@@ -17,15 +17,16 @@ import {
 } from 'lucide-react';
 import { useNavigate } from '@tanstack/react-router';
 // Header is now in MainLayout
-import { AppGrid } from '../components/AppGrid';
-import { AIResponseCard } from '../components/AIResponseCard';
-import { GlobalSearch } from '../components/GlobalSearch';
-import { Modal } from '../components/ui/Modal';
-import { Button } from '../components/ui/Button';
-import { AppIcon } from '../types';
-import { MOCK_USER } from '../constants';
-import { useAppStore } from '../store';
-import { CreateTicketModal, ConfigModal } from './components/modal';
+import { AppGrid } from '@/components/AppGrid'
+import { AIResponseCard } from '@/components/AIResponseCard'
+import { GlobalSearch } from '@/components/GlobalSearch'
+import { Modal } from '@/components/ui/Modal'
+import { Button } from '@/components/ui/Button'
+import { AppIcon } from '@/types'
+import { MOCK_USER } from '@/constants'
+import { useAppStore } from '@/store';
+import { CreateTicketModal } from './components/ticket-modal';
+import { ConfigModal } from './components/config-modal'
 
 // Apps list matching requirements
 const INITIAL_APPS: AppIcon[] = [
@@ -135,12 +136,7 @@ export const DashboardPage: React.FC = () => {
 
     return (
         <main className="container mx-auto px-4 py-8 max-w-7xl">
-            {/* Intro / Welcome Section */}
-            <div className="mb-8 pl-1">
-                <h1 className="text-3xl font-bold tracking-tight text-foreground">
-                    Good Morning, {MOCK_USER.name.split(' ')[0]}
-                </h1>
-            </div>
+
 
             {/* AI Response Area */}
             {aiResponse && (

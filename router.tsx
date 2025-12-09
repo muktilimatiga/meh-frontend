@@ -1,6 +1,6 @@
 import { createRouter, createRoute, createRootRoute } from '@tanstack/react-router';
 import { MainLayout } from './components/layouts/MainLayout';
-import { DashboardPage } from './pages/Dashboard';
+import { DashboardPage } from '@/pages/dashboard/index';
 import { ExcalidrawPage } from './pages/Excalidraw';
 import { ReactFlowPage } from './pages/ReactFlow';
 import { BroadbandPage } from './pages/Broadband';

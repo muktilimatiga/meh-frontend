@@ -94,11 +94,6 @@ export interface ConfigurationRequest {
     eth_locks: boolean[];
 }
 
-// Mock response handler
-const getMockResponse = (endpoint: string): any => {
-    return { status: 'success', message: 'Mock response' };
-};
-
 // Enhanced fetch function
 async function fetchJson<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const url = `${API_BASE_URL}/api/v1${endpoint}`;
@@ -117,11 +112,6 @@ async function fetchJson<T>(endpoint: string, options: RequestInit = {}): Promis
 
     return await response.json();
   } catch (error) {
-    if (ENABLE_MOCK_FALLBACK) {
-        console.warn(`External API (${url}) failed. Using Mock Data.`);
-        await new Promise(resolve => setTimeout(resolve, 600));
-        return getMockResponse(endpoint) as T;
-    }
     throw error;
   }
 }
