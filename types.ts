@@ -1,18 +1,18 @@
 import { LucideIcon } from 'lucide-react';
 
 export interface AppIcon {
-    id: string;
-    name: string;
-    icon: LucideIcon;
-    color: string;
-    description: string;
+  id: string;
+  name: string;
+  icon: LucideIcon;
+  color: string;
+  description: string;
 }
 
 export interface UserProfile {
-    id: number;
-    username: string;
-    full_name: string;
-    role: string;
+  id: number;
+  username: string;
+  full_name: string;
+  role: string;
 }
 
 // Merged into the main Customer interface below
@@ -20,116 +20,116 @@ export interface UserProfile {
 
 
 export interface CustomerPSB {
-    name: string;
-    alamat: string;
-    user_pppoe: string;
-    password_pppoe: string;
-    paket: string;
+  name: string;
+  alamat: string;
+  user_pppoe: string;
+  password_pppoe: string;
+  paket: string;
 }
 
 export interface SearchResult {
-    type: 'APP' | 'AI_ANSWER';
-    content: string | AppIcon;
+  type: 'APP' | 'AI_ANSWER';
+  content: string | AppIcon;
 }
 
 export enum AISearchStatus {
-    IDLE = 'IDLE',
-    LOADING = 'LOADING',
-    SUCCESS = 'SUCCESS',
-    ERROR = 'ERROR'
+  IDLE = 'IDLE',
+  LOADING = 'LOADING',
+  SUCCESS = 'SUCCESS',
+  ERROR = 'ERROR'
 }
 
 // React Flow / Topology Types
 export type NodeType = 'input' | 'process' | 'output' | 'database' | 'api' | 'decision';
 
 export interface Node {
-    id: string;
-    type: NodeType;
-    position: { x: number; y: number };
-    label: string;
-    data?: Record<string, any>; // For dropdowns, inputs, custom state
+  id: string;
+  type: NodeType;
+  position: { x: number; y: number };
+  label: string;
+  data?: Record<string, any>; // For dropdowns, inputs, custom state
 }
 
 export interface Edge {
-    id: string;
-    source: string;
-    target: string;
+  id: string;
+  source: string;
+  target: string;
 }
 
 // Excalidraw / Whiteboard Types
 export type WhiteboardTool = 'select' | 'rectangle' | 'circle' | 'text';
 
 export interface WhiteboardShape {
-    id: string;
-    type: WhiteboardTool;
-    x: number;
-    y: number;
-    width?: number;
-    height?: number;
-    text?: string;
-    color: string;
+  id: string;
+  type: WhiteboardTool;
+  x: number;
+  y: number;
+  width?: number;
+  height?: number;
+  text?: string;
+  color: string;
 }
 
 // Stats & Support Types
 export interface Ticket {
-    id: string;
-    title: string;
-    status: 'open' | 'in_progress' | 'resolved' | 'closed';
-    priority: 'low' | 'medium' | 'high';
-    assigneeId?: string | null;
-    createdAt: string;
+  id: string;
+  title: string;
+  status: 'open' | 'in_progress' | 'resolved' | 'closed';
+  priority: 'low' | 'medium' | 'high';
+  assigneeId?: string | null;
+  createdAt: string;
 }
 
 export interface TicketLog {
-    id: string;
-    ticketId: string;
-    message: string;
-    timestamp: string;
-    userId: string;
+  id: string;
+  ticketId: string;
+  message: string;
+  timestamp: string;
+  userId: string;
 }
 
 export interface TrafficData {
-    timestamp: string;
-    download: number;
-    upload: number;
+  timestamp: string;
+  download: number;
+  upload: number;
 }
 
 export interface DashboardStats {
-    totalTickets: number;
-    openTickets: number;
-    resolvedTickets: number;
-    activeUsers: number;
+  totalTickets: number;
+  openTickets: number;
+  resolvedTickets: number;
+  activeUsers: number;
 }
 
 export interface Device {
-    id: string;
-    name: string;
-    ip: string;
-    status: 'online' | 'offline';
-    lastSeen: string;
-    type: string;
+  id: string;
+  name: string;
+  ip: string;
+  status: 'online' | 'offline';
+  lastSeen: string;
+  type: string;
 }
 
 export interface SystemLog {
-    id: string;
-    level: 'info' | 'warning' | 'error';
-    message: string;
-    timestamp: number;
-    source?: string;
+  id: string;
+  level: 'info' | 'warning' | 'error';
+  message: string;
+  timestamp: number;
+  source?: string;
 }
 
 export interface LogMetro {
-    id: string;
-    service_name: string;
-    month_sheet: string;
-    no_ref: number;
-    description: string;
-    start_time: string;
-    finish_time: string;
-    downtime_duration: number;
-    downtime_minutes: number;
-    problem_detail: string;
-    action_taken: string;
+  id: string;
+  service_name: string;
+  month_sheet: string;
+  no_ref: number;
+  description: string;
+  start_time: string;
+  finish_time: string;
+  downtime_duration: number;
+  downtime_minutes: number;
+  problem_detail: string;
+  action_taken: string;
 }
 
 // Base API configuration
@@ -164,7 +164,7 @@ export interface Customer {
   detail_url: string;
   address?: string;
   alamat?: string;
-  nameaddres?: string; 
+  nameaddres?: string;
   // Merged properties from previous Customer definition
   olt_name?: string;
   interface?: string;
@@ -400,11 +400,24 @@ export interface OnuDetail {
   modem_logs: OnuLogEntry[];
 }
 
+// Customers View Tables
+export interface CustomersView {
+  customer_name: string;
+  address: string;
+  user_pppoe: string;
+  olt_name: string;
+  interface: string;
+  configured_sn: string;
+  onu_status: string;
+  rx_power_str: string;
+  last_uptime: string;
+  snmp_last_updated: string;
+}
 // Enhanced fetch function with better error handling
 async function fetchJson<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   try {
     const url = `${API_BASE_URL}/api/v1${endpoint}`;
-    
+
     const response = await fetch(url, {
       ...options,
       headers: {
@@ -415,14 +428,14 @@ async function fetchJson<T>(endpoint: string, options: RequestInit = {}): Promis
 
     if (!response.ok) {
       let errorMessage = `API Error: ${response.status} ${response.statusText}`;
-      
+
       try {
         const errorData = await response.json();
         errorMessage = errorData.detail || errorMessage;
       } catch (e) {
         // If we can't parse the error as JSON, use the default message
       }
-      
+
       throw new ApiError(errorMessage, response.status);
     }
 
@@ -431,7 +444,7 @@ async function fetchJson<T>(endpoint: string, options: RequestInit = {}): Promis
     if (error instanceof ApiError) {
       throw error;
     }
-    
+
     console.error('Network or parsing error:', error);
     throw new ApiError('Network error or invalid response', 0);
   }
@@ -442,38 +455,38 @@ export const ApiService = {
   // Customer endpoints
   customer: {
     getPSBData: (): Promise<DataPSB[]> => fetchJson<DataPSB[]>('/customer/psb'),
-    getInvoices: (query: string): Promise<CustomerwithInvoices[]> => 
+    getInvoices: (query: string): Promise<CustomerwithInvoices[]> =>
       fetchJson<CustomerwithInvoices[]>(`/customer/invoices?query=${encodeURIComponent(query)}`),
   },
 
   // ONU endpoints
   onu: {
-    getCustomerDetails: (payload: OnuTargetPayload): Promise<CustomerOnuDetail> => 
+    getCustomerDetails: (payload: OnuTargetPayload): Promise<CustomerOnuDetail> =>
       fetchJson<CustomerOnuDetail>('/onu/detail-search', {
         method: 'POST',
         body: JSON.stringify(payload),
       }),
-    getOnuState: (payload: PortTargetPayload): Promise<OnuStateResponse> => 
+    getOnuState: (payload: PortTargetPayload): Promise<OnuStateResponse> =>
       fetchJson<OnuStateResponse>('/onu/onu-state', {
         method: 'POST',
         body: JSON.stringify(payload),
       }),
-    getOnuRx: (payload: PortTargetPayload): Promise<OnuRxResponse> => 
+    getOnuRx: (payload: PortTargetPayload): Promise<OnuRxResponse> =>
       fetchJson<OnuRxResponse>('/onu/onu-rx', {
         method: 'POST',
         body: JSON.stringify(payload),
       }),
-    rebootOnu: (payload: OnuTargetPayload): Promise<RebootResponse> => 
+    rebootOnu: (payload: OnuTargetPayload): Promise<RebootResponse> =>
       fetchJson<RebootResponse>('/onu/reboot-onu', {
         method: 'POST',
         body: JSON.stringify(payload),
       }),
-    removeOnu: (payload: NoOnuPayload): Promise<NoOnuResponse> => 
+    removeOnu: (payload: NoOnuPayload): Promise<NoOnuResponse> =>
       fetchJson<NoOnuResponse>('/onu/no-onu', {
         method: 'POST',
         body: JSON.stringify(payload),
       }),
-    registerSn: (payload: RegistSnPayload): Promise<RegistSnResponse> => 
+    registerSn: (payload: RegistSnPayload): Promise<RegistSnResponse> =>
       fetchJson<RegistSnResponse>('/onu/regist-sn', {
         method: 'POST',
         body: JSON.stringify(payload),
@@ -482,32 +495,32 @@ export const ApiService = {
 
   // Ticket endpoints
   ticket: {
-    createOnly: (payload: TicketCreateOnlyPayload): Promise<TicketOperationResponse> => 
+    createOnly: (payload: TicketCreateOnlyPayload): Promise<TicketOperationResponse> =>
       fetchJson<TicketOperationResponse>('/ticket/create', {
         method: 'POST',
         body: JSON.stringify(payload),
       }),
-    createAndProcess: (payload: TicketCreateAndProcessPayload): Promise<TicketOperationResponse> => 
+    createAndProcess: (payload: TicketCreateAndProcessPayload): Promise<TicketOperationResponse> =>
       fetchJson<TicketOperationResponse>('/ticket/create-and-process', {
         method: 'POST',
         body: JSON.stringify(payload),
       }),
-    processOnly: (payload: TicketProcessPayload): Promise<TicketOperationResponse> => 
+    processOnly: (payload: TicketProcessPayload): Promise<TicketOperationResponse> =>
       fetchJson<TicketOperationResponse>('/ticket/process', {
         method: 'POST',
         body: JSON.stringify(payload),
       }),
-    close: (payload: TicketClosePayload): Promise<TicketOperationResponse> => 
+    close: (payload: TicketClosePayload): Promise<TicketOperationResponse> =>
       fetchJson<TicketOperationResponse>('/ticket/close', {
         method: 'POST',
         body: JSON.stringify(payload),
       }),
-    forward: (payload: TicketForwardPayload): Promise<TicketOperationResponse> => 
+    forward: (payload: TicketForwardPayload): Promise<TicketOperationResponse> =>
       fetchJson<TicketOperationResponse>('/ticket/forward', {
         method: 'POST',
         body: JSON.stringify(payload),
       }),
-    search: (payload: SearchPayload): Promise<SearchResponse> => 
+    search: (payload: SearchPayload): Promise<SearchResponse> =>
       fetchJson<SearchResponse>('/ticket/search', {
         method: 'POST',
         body: JSON.stringify(payload),
@@ -516,25 +529,25 @@ export const ApiService = {
 
   // CLI endpoints
   cli: {
-    startTerminal: (): Promise<TerminalResponse> => 
+    startTerminal: (): Promise<TerminalResponse> =>
       fetchJson<TerminalResponse>('/cli/start_terminal', {
         method: 'POST',
       }),
-    stopTerminal: (port: number): Promise<StopResponse> => 
+    stopTerminal: (port: number): Promise<StopResponse> =>
       fetchJson<StopResponse>(`/cli/stop_terminal/${port}`, {
         method: 'POST',
       }),
-    listRunningTerminals: (): Promise<ListResponse> => 
+    listRunningTerminals: (): Promise<ListResponse> =>
       fetchJson<ListResponse>('/cli/running_terminals'),
   },
 
   // Config endpoints
   config: {
-    getOptions: (): Promise<OptionsResponse> => 
+    getOptions: (): Promise<OptionsResponse> =>
       fetchJson<OptionsResponse>('/config/api/options'),
-    detectUnconfiguredOnts: (oltName: string): Promise<UnconfiguredOnt[]> => 
+    detectUnconfiguredOnts: (oltName: string): Promise<UnconfiguredOnt[]> =>
       fetchJson<UnconfiguredOnt[]>(`/config/api/olts/${oltName}/detect-onts`),
-    runConfiguration: (oltName: string, request: ConfigurationRequest): Promise<ConfigurationResponse> => 
+    runConfiguration: (oltName: string, request: ConfigurationRequest): Promise<ConfigurationResponse> =>
       fetchJson<ConfigurationResponse>(`/config/api/olts/${oltName}/configure`, {
         method: 'POST',
         body: JSON.stringify(request),
